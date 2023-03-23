@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "278952840325",
+    "project_id": "littleleagues",
+    "storage_bucket": "littleleagues.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:278952840325:android:f029f02e95d4bf3f7eedec",
+        "android_client_info": {
+          "package_name": "com.example.little_leagues"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "278952840325-bk5rid648lbr6las8oc5m84u95j4kcsn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.little_leagues",
+            "certificate_hash": "d6b338a8b715121080462a52d08bdf6b77785add"
+          }
+        },
+        {
+          "client_id": "278952840325-90darus55s8bls271hirsa7oo0b0csik.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA71jww0IJSf73NVglGxKmXWtA_9WBSoaA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "278952840325-90darus55s8bls271hirsa7oo0b0csik.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

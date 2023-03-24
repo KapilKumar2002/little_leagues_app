@@ -8,19 +8,6 @@ class CalendarPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: black,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: black,
-        elevation: 0,
-        title: Text(
-          "Calendar",
-          style: text25Bold(white),
-        ),
-        actions: [
-          IconButton(onPressed: () {}, icon: Icon(Icons.search)),
-          IconButton(onPressed: () {}, icon: Icon(Icons.menu)),
-        ],
-      ),
       body: Container(
         child: Column(
           children: [],

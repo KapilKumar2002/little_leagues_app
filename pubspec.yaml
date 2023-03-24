@@ -38,6 +38,10 @@ dependencies:
   cupertino_icons: ^1.0.2
   firebase_core: ^2.8.0
   cloud_firestore: ^4.4.5
+  percent_indicator: ^4.2.3
+  fl_chart: ^0.61.0
+  flutter_charts: ^0.5.1
+  
 
 dev_dependencies:
   flutter_test:

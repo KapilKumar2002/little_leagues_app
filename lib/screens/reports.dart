@@ -13,18 +13,6 @@ class _ReportsPageState extends State<ReportsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: black,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: black,
-        elevation: 0,
-        title: Text(
-          "Reports",
-          style: text25Bold(white),
-        ),
-        actions: [
-          IconButton(onPressed: () {}, icon: Icon(Icons.menu)),
-        ],
-      ),
       body: Container(
         child: Column(
           children: [],

@@ -15,6 +15,7 @@ class BottomNav extends StatefulWidget {
 }
 
 class _BottomNavState extends State<BottomNav> {
+  final GlobalKey<ScaffoldState> globalKey = GlobalKey();
   List bodyWidgets = [
     ReportsPage(),
     CalendarPage(),
@@ -26,6 +27,36 @@ class _BottomNavState extends State<BottomNav> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: Drawer(
+        backgroundColor: Colors.grey.shade900,
+      ),
+      key: globalKey,
+      appBar: AppBar(
+        foregroundColor: white,
+        automaticallyImplyLeading: false,
+        backgroundColor: black,
+        elevation: 0,
+        title: Text(
+          index == 0
+              ? "Reports"
+              : index == 1
+                  ? "Calendar"
+                  : index == 2
+                      ? "Dashboard"
+                      : index == 3
+                          ? "Message"
+                          : "Notification",
+          style: text25Bold(white),
+        ),
+        actions: [
+          IconButton(onPressed: () {}, icon: Icon(Icons.search)),
+          IconButton(
+              onPressed: () {
+                globalKey.currentState!.openDrawer();
+              },
+              icon: Icon(Icons.menu)),
+        ],
+      ),
       backgroundColor: black,
       body: bodyWidgets[index],
       bottomNavigationBar: BottomAppBar(

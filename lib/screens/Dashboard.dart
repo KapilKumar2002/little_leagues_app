@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:little_leagues/model/bar_model.dart';
 import 'package:little_leagues/utils/constants.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+
+import '../utils/constants.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
-import 'package:fl_chart/fl_chart.dart' as charts;
 // import 'package:flutter_charts/flutter_charts.dart' as charts;
 
-class DashboardPage extends StatefulWidget {
-  const DashboardPage({super.key});
+class DashboardPage extends StatelessWidget {
+  List<BarModel> data = [
+    BarModel('2', 35),
+    BarModel('3', 28),
+    BarModel('6', 34),
+    BarModel('9', 32),
+    BarModel('11', 40)
+  ];
 
-  @override
-  State<DashboardPage> createState() => _DashboardPageState();
-}
-
-class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,7 +110,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                           verticalSpace(4),
                           Container(
-                              width: width(context) * .4,
+                              width: width(context) - 200,
                               child: LinearPercentIndicator(
                                 lineHeight: 3,
                                 barRadius: Radius.circular(2),
@@ -167,6 +171,31 @@ class _DashboardPageState extends State<DashboardPage> {
                           blurStyle: BlurStyle.solid)
                     ]),
                 width: width(context),
+                // child: SfCartesianChart(
+                //     plotAreaBorderWidth: 0,
+                //     primaryYAxis: NumericAxis(
+                //         majorGridLines: const MajorGridLines(width: 0),
+                //         axisLine: const AxisLine(width: 0)),
+                //     primaryXAxis: CategoryAxis(
+                //       majorGridLines: const MajorGridLines(width: 0),
+                //       axisLine: const AxisLine(width: 0),
+                //     ),
+                //     // Enable tooltip
+                //     tooltipBehavior: TooltipBehavior(enable: true),
+                //     series: <ChartSeries<BarModel, String>>[
+                //       StackedColumn100Series<BarModel, String>(
+                //         dataSource: data,
+                //         xValueMapper: (BarModel sales, _) => sales.Day,
+                //         yValueMapper: (BarModel sales, _) => sales.value,
+                //         name: 'Sales',
+                //       ),
+                //       StackedColumn100Series<BarModel, String>(
+                //         dataSource: data,
+                //         xValueMapper: (BarModel sales, _) => sales.Day,
+                //         yValueMapper: (BarModel sales, _) => sales.value,
+                //         name: 'Sales',
+                //       ),
+                //     ]),
               ),
               verticalSpace(25),
               Padding(

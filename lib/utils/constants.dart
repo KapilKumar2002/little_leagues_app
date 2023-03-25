@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 Color primaryColor = Color.fromARGB(255, 194, 235, 83);
 Color transparentColor = Colors.transparent;
-Color backgroundColor = black.withOpacity(.9);
+Color backgroundColor = Colors.grey.shade900;
 Color bottomBarColor = black.withOpacity(.8);
 Color white = Color(0XFFFFFFFFF);
 Color black = Color(0XFF000000);

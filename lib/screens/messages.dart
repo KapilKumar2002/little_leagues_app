@@ -54,7 +54,7 @@ class _MessagePageState extends State<MessagePage> {
                                   borderRadius: BorderRadius.circular(100),
                                   color: Color.fromARGB(255, 104, 103, 103),
                                 ),
-                                width: width(context) * .63,
+                                width: width(context) - 140,
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 30, vertical: 15),
                                 child: Text(

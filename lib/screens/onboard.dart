@@ -13,18 +13,10 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: PreferredSize(
-
-      //     preferredSize: Size.fromHeight(80),
-      //     child: AppBar(
-
-      //         title: Image.asset(
-      //       "assets/logo.png",
-      //       height: 100,
-      //     ))),
+      backgroundColor: backgroundColor,
       body: SingleChildScrollView(
         child: Container(
-          color: backgroundColor,
+          // color: backgroundColor,
           child: Column(
             children: [
               SizedBox(

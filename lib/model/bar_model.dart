@@ -1,5 +1,5 @@
 class BarModel {
   String Day;
-  int value;
+  double value;
   BarModel(this.Day, this.value);
 }

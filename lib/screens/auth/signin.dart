@@ -15,8 +15,8 @@ class _SignInState extends State<SignIn> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundColor,
       body: Container(
-        color: backgroundColor,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(

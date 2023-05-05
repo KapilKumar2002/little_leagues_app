@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 
-Color primaryColor = Color.fromARGB(255, 194, 235, 83);
+Color primaryColor = Color(0xFFDDFE52);
 Color transparentColor = Colors.transparent;
-Color backgroundColor = Colors.grey.shade900;
+Color backgroundColor = Color(0xFF1A1919);
+Color nColor = Color(0xFF313030);
 Color bottomBarColor = black.withOpacity(.8);
-Color white = Color(0XFFFFFFFFF);
+Color fillColor = Color(0xFFE1E1E1);
+Color white = Colors.white.withOpacity(.83);
+Color white2 = Colors.white;
 Color black = Color(0XFF000000);
 Color grey = black.withOpacity(.5);
+
+String adminUID = "1rM4qLcVEhCARipS0Ivfa3d4Wt0=debraj_nasker";
 
 TextStyle text25Bold(Color color) {
   return TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: color);
@@ -14,6 +19,14 @@ TextStyle text25Bold(Color color) {
 
 TextStyle text20Bold(Color color) {
   return TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: color);
+}
+
+TextStyle text20w500(Color color) {
+  return TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: color);
+}
+
+TextStyle text20w800(Color color) {
+  return TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: color);
 }
 
 TextStyle text18w500(Color color) {
@@ -24,20 +37,36 @@ TextStyle text16w500(Color color) {
   return TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: color);
 }
 
+TextStyle text16w600(Color color) {
+  return TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: color);
+}
+
 TextStyle text15w500(Color color) {
   return TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: color);
 }
 
-TextStyle text14w500(Color color) {
-  return TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: color);
+TextStyle text14w500(Color color, {TextOverflow? overflow}) {
+  return TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+      color: color,
+      overflow: overflow);
 }
 
 TextStyle text14w400(Color color) {
   return TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: color);
 }
 
+TextStyle text14w700(Color color) {
+  return TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: color);
+}
+
 TextStyle text10w400(Color color) {
   return TextStyle(fontSize: 10, fontWeight: FontWeight.w400, color: color);
+}
+
+TextStyle text8w400(Color color) {
+  return TextStyle(fontSize: 8, fontWeight: FontWeight.w400, color: color);
 }
 
 TextStyle text12w400(Color color) {
@@ -49,12 +78,24 @@ TextStyle text12w400(Color color) {
   );
 }
 
+TextStyle text12w600(Color color) {
+  return TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: color);
+}
+
+TextStyle text20w600(Color color) {
+  return TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: color);
+}
+
 TextStyle text12w500(Color color) {
   return TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: color);
 }
 
-TextStyle text10w500(Color color) {
-  return TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: color);
+TextStyle text10w500(Color color, {TextDecoration? decoration}) {
+  return TextStyle(
+      fontSize: 10,
+      fontWeight: FontWeight.w500,
+      color: color,
+      decoration: decoration);
 }
 
 verticalSpace(double height) {
@@ -75,4 +116,13 @@ width(BuildContext context) {
 
 height(BuildContext context) {
   return MediaQuery.of(context).size.height;
+}
+
+void NextScreen(context, page) {
+  Navigator.push(context, MaterialPageRoute(builder: (context) => page));
+}
+
+void nextScreenReplace(context, page) {
+  Navigator.pushReplacement(
+      context, MaterialPageRoute(builder: (context) => page));
 }

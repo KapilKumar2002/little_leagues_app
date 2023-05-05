@@ -1,10 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:little_leagues/screens/onboard.dart';
+import 'package:little_leagues/screens/start/splashscreen.dart';
 
 void main() async {
-  // WidgetsFlutterBinding.ensureInitialized();
-  // await Firebase.initializeApp();
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
@@ -15,11 +15,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Little Leagues',
-      theme: ThemeData(
-        primarySwatch: Colors.grey,
-      ),
-      home: const OnBoardScreen(),
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const SplashScreen(),
     );
   }
 }

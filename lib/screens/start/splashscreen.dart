@@ -45,7 +45,7 @@ class _SplashScreenState extends State<SplashScreen> {
     getUserLoggedInStatus();
     super.initState();
     Timer(Duration(seconds: 2), () {
-      NextScreen(context, _isSignedIn ? BottomNav() : OnBoardScreen());
+      nextScreenReplace(context, _isSignedIn ? BottomNav() : OnBoardScreen());
     });
   }
 

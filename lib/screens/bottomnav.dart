@@ -6,7 +6,7 @@ import 'package:little_leagues/screens/calendar.dart';
 import 'package:little_leagues/screens/messages.dart';
 import 'package:little_leagues/screens/notification.dart';
 import 'package:little_leagues/screens/reports.dart';
-import 'package:little_leagues/screens/shop.dart';
+import 'package:little_leagues/screens/shop/shop.dart';
 import 'package:little_leagues/services/database_service.dart';
 import 'package:little_leagues/utils/constants.dart';
 import 'package:little_leagues/widgets/customdrawer.dart';
@@ -67,6 +67,7 @@ class _BottomNavState extends State<BottomNav> {
       ShopPage(),
       CalendarPage(),
       MessagePage(
+          height: height(context) - 225,
           groupId: groupId,
           groupName:
               FirebaseAuth.instance.currentUser!.uid.toString() + fullName,
@@ -85,7 +86,7 @@ class _BottomNavState extends State<BottomNav> {
           index == 0
               ? "Dashboard"
               : index == 1
-                  ? "Calendar"
+                  ? "Sports"
                   : index == 2
                       ? "Calendar"
                       : index == 3

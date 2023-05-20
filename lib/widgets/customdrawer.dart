@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:little_leagues/screens/auth/signin.dart';
@@ -13,6 +14,29 @@ class CustomDrawer extends StatefulWidget {
 }
 
 class _CustomDrawerState extends State<CustomDrawer> {
+  String? fullName;
+  String? phoneNumber;
+  String? email;
+  getUserDetails() async {
+    final user = FirebaseAuth.instance.currentUser;
+    final userCollection = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(user!.uid)
+        .get();
+    final data = userCollection.data() as Map<String, dynamic>;
+    fullName = data['fullName'];
+    phoneNumber = data['phone'];
+    email = data['email'];
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    getUserDetails();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -39,16 +63,16 @@ class _CustomDrawerState extends State<CustomDrawer> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Ronaldo_07",
-                        style: text20w800(black),
+                        fullName.toString(),
+                        style: text14w700(black),
                       ),
                       Text(
-                        "8445589271",
-                        style: text20w800(black),
+                        phoneNumber.toString(),
+                        style: text14w500(black),
                       ),
                       Text(
-                        "ronaldo@gmail.com",
-                        style: text20w800(black),
+                        email.toString(),
+                        style: text14w500(black),
                       ),
                     ],
                   ),

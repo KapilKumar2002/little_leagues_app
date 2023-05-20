@@ -1,17 +1,21 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:little_leagues/screens/showImage.dart';
 import 'package:little_leagues/utils/constants.dart';
+import 'package:intl/intl.dart';
 
 class MessageTile extends StatefulWidget {
   final String message;
   final String sender;
   final bool sentByMe;
   final String type;
+  final DateTime time;
   const MessageTile(
       {Key? key,
       required this.message,
       required this.sender,
       required this.sentByMe,
+      required this.time,
       required this.type})
       : super(key: key);
 
@@ -31,9 +35,9 @@ class _MessageTileState extends State<MessageTile> {
       alignment: widget.sentByMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         margin: widget.sentByMe
-            ? const EdgeInsets.only(left: 30)
-            : const EdgeInsets.only(right: 30),
-        padding: const EdgeInsets.all(12),
+            ? const EdgeInsets.only(left: 30, bottom: 2)
+            : const EdgeInsets.only(right: 30, bottom: 2),
+        padding: const EdgeInsets.only(top: 5, left: 12, right: 12, bottom: 5),
         decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
@@ -54,44 +58,61 @@ class _MessageTileState extends State<MessageTile> {
                     bottomRight: Radius.circular(20),
                   ),
             color: widget.sentByMe ? primaryColor : Colors.grey[700]),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              widget.sender.toUpperCase(),
-              textAlign: TextAlign.start,
-              style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  color: widget.sentByMe ? black : white2,
-                  letterSpacing: -0.5),
-            ),
-            const SizedBox(
-              height: 8,
-            ),
-            widget.type == "text"
-                ? Text(widget.message,
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        fontSize: 16, color: widget.sentByMe ? black : white2))
-                : InkWell(
-                    onTap: () {
-                      NextScreen(
-                          context,
-                          ShowImageScreen(
-                            image: widget.message,
-                            sender: widget.sentByMe ? "You" : widget.sender,
-                          ));
-                    },
-                    child: Hero(
-                      tag: widget.message,
-                      child: Image.network(
-                        widget.message,
-                        width: width(context) / 2.75,
-                        height: width(context) / 2.5,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.sentByMe
+                      ? "You".toUpperCase()
+                      : widget.sender.toUpperCase(),
+                  textAlign: TextAlign.start,
+                  style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: widget.sentByMe ? black : white2,
+                      letterSpacing: -0.5),
+                ),
+                const SizedBox(
+                  height: 8,
+                ),
+                widget.type == "text"
+                    ? Text(widget.message,
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: widget.sentByMe ? black : white2))
+                    : InkWell(
+                        onTap: () {
+                          NextScreen(
+                              context,
+                              ShowImageScreen(
+                                image: widget.message,
+                                sender: widget.sentByMe ? "You" : widget.sender,
+                                time: DateFormat.Hm()
+                                    .format(widget.time)
+                                    .toString(),
+                              ));
+                        },
+                        child: Hero(
+                          tag: widget.message,
+                          child: Image.network(
+                            widget.message,
+                            width: width(context) / 3.5,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
+              ],
+            ),
+            horizontalSpace(8),
+            Text(
+              DateFormat.Hm().format(widget.time).toString(),
+              style: text10w400(widget.sentByMe ? black : white2),
+            ),
           ],
         ),
       ),

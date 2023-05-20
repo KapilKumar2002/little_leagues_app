@@ -79,6 +79,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                 Form(
                   key: key,
                   child: TextFormField(
+                    maxLength: 10,
                     controller: phoneController,
                     style: text16w600(black),
                     keyboardType: TextInputType.number,

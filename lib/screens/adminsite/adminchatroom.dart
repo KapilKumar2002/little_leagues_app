@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:little_leagues/services/auth_service.dart';
 import 'package:little_leagues/services/database_service.dart';
 import 'package:little_leagues/utils/constants.dart';
 import 'package:little_leagues/widgets/grouptile.dart';
+import 'package:intl/intl.dart';
 
 class AdminChatRoom extends StatefulWidget {
   const AdminChatRoom({super.key});
@@ -28,7 +30,8 @@ class _AdminChatRoomState extends State<AdminChatRoom> {
   @override
   void initState() {
     super.initState();
-    gettingUserData();
+    // gettingUserData();
+    getUserGroups();
   }
 
   gettingUserData() async {
@@ -37,6 +40,13 @@ class _AdminChatRoomState extends State<AdminChatRoom> {
       setState(() {
         groups = snapshot;
       });
+    });
+  }
+
+  getUserGroups() async {
+    final data = await DatabaseService().getGroups();
+    setState(() {
+      groups = data;
     });
   }
 
@@ -59,18 +69,32 @@ class _AdminChatRoomState extends State<AdminChatRoom> {
       builder: (context, AsyncSnapshot snapshot) {
         // make some checks
         if (snapshot.hasData) {
-          if (snapshot.data['groups'] != null) {
-            if (snapshot.data['groups'].length != 0) {
+          if (snapshot.data.docs != null) {
+            if (snapshot.data.docs.length != 0) {
               return ListView.builder(
-                itemCount: snapshot.data['groups'].length,
+                itemCount: snapshot.data.docs.length,
                 itemBuilder: (context, index) {
-                  int reverseIndex = snapshot.data['groups'].length - index - 1;
+                  int reverseIndex = snapshot.data.docs.length - index - 1;
+
+                  final DateTime dateTime = snapshot.data.docs[reverseIndex]
+                              ['recentMessageTime'] !=
+                          null
+                      ? snapshot.data.docs[reverseIndex]['recentMessageTime']
+                          .toDate()
+                      : Timestamp.now().toDate();
+
+                  final String recentTime =
+                      DateFormat.Hm().format(dateTime).toString();
 
                   return GroupTile(
-                    groupId: getId(snapshot.data['groups'][reverseIndex]),
-                    groupName: getName(snapshot.data['groups'][reverseIndex]),
-                    userName: "admin",
-                  );
+                      groupId: snapshot.data.docs[reverseIndex]['groupId'],
+                      groupName: snapshot.data.docs[reverseIndex]['groupName'],
+                      userName: "admin",
+                      recentMessage: snapshot.data.docs[reverseIndex]
+                          ['recentMessage'],
+                      sender: snapshot.data.docs[reverseIndex]
+                          ['recentMessageSender'],
+                      recentTime: recentTime);
                 },
               );
             } else {

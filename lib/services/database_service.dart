@@ -15,6 +15,8 @@ class DatabaseService {
       FirebaseFirestore.instance.collection("users");
   final CollectionReference groupCollection =
       FirebaseFirestore.instance.collection("groups");
+  final CollectionReference categoryCollection =
+      FirebaseFirestore.instance.collection("category");
 
   // saving the userdata
   Future savingUserData(String fullName, String email, String phone) async {
@@ -84,8 +86,31 @@ class DatabaseService {
         .snapshots();
   }
 
+  getexports(String categoryid) async {
+    return categoryCollection
+        .doc(categoryid)
+        .collection("most_explored_sports")
+        .snapshots();
+  }
+
+  getallsports(String categoryid) async {
+    return categoryCollection
+        .doc(categoryid)
+        .collection("all_sports")
+        .snapshots();
+  }
+
+  getcarousel(String id) async {
+    return categoryCollection
+        .doc("n7H0jLmG0KalEBjVwLm8")
+        .collection("most_explored_sports")
+        .doc(id)
+        .collection("carousel")
+        .snapshots();
+  }
+
   getGroups() async {
-    return groupCollection.orderBy("recentMessageTime").snapshots();
+    return await groupCollection.orderBy("recentMessageTime").snapshots();
   }
 
   Future getGroupAdmin(String groupId) async {

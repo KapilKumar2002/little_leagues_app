@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_week/flutter_calendar_week.dart';
 import 'package:little_leagues/utils/constants.dart';
@@ -12,6 +14,38 @@ class OtherEvents extends StatefulWidget {
 
 class _OtherEventsState extends State<OtherEvents>
     with TickerProviderStateMixin {
+  Stream? stream;
+  final user = FirebaseAuth.instance.currentUser;
+
+  registerEvents(String id) async {
+    final event =
+        await FirebaseFirestore.instance.collection("events").doc(id).get();
+    final data = event.data() as Map<String, dynamic>;
+    await FirebaseFirestore.instance
+        .collection("users")
+        .doc(user!.uid)
+        .collection("registered_events")
+        .doc(id)
+        .set(data);
+  }
+
+  getEvents(String date) async {
+    final data = await FirebaseFirestore.instance
+        .collection("events")
+        .where("date", isEqualTo: date)
+        .snapshots();
+    setState(() {
+      stream = data;
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    getEvents(DateFormat.yMd().format(DateTime.now()).toString());
+    super.initState();
+  }
+
   final CalendarWeekController _controller = CalendarWeekController();
 
   DateTime dateTime = DateTime.now();
@@ -49,6 +83,7 @@ class _OtherEventsState extends State<OtherEvents>
               ),
               onDatePressed: (DateTime datetime) {
                 // Do something
+                getEvents(DateFormat.yMd().format(datetime));
                 setState(() {});
               },
               onDateLongPressed: (DateTime datetime) {
@@ -89,110 +124,130 @@ class _OtherEventsState extends State<OtherEvents>
               ],
             )),
         verticalSpace(15),
-        ListView.builder(
-          itemCount: 8,
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          scrollDirection: Axis.vertical,
-          itemBuilder: (context, index) {
-            return Container(
-              margin: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-              height: 120,
-              width: width(context),
-              padding: EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20), color: white2),
-              child: Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Container(
-                      height: double.infinity,
-                      width: width(context) * .275,
-                      child: Image.asset(
-                        "assets/tt.jpg",
-                        fit: BoxFit.fill,
-                      ),
-                    ),
-                  ),
-                  horizontalSpace(8),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Table Tennis",
-                                style: text16w600(black),
+        StreamBuilder(
+          stream: stream,
+          builder: (context, snapshot) {
+            return snapshot.hasData
+                ? ListView.builder(
+                    itemCount: snapshot.data.docs.length,
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    scrollDirection: Axis.vertical,
+                    itemBuilder: (context, index) {
+                      return Container(
+                        margin:
+                            EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                        height: 120,
+                        width: width(context),
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: white2),
+                        child: Row(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Container(
+                                height: double.infinity,
+                                width: width(context) * .275,
+                                child: Image.network(
+                                  snapshot.data.docs[index]['pic'],
+                                  fit: BoxFit.fill,
+                                ),
                               ),
-                              Container(
-                                height: 35,
-                                width: 70,
-                                child: Center(
-                                    child: Text(
-                                  "Join Now",
-                                  style: text14w700(black),
-                                )),
-                                decoration: BoxDecoration(
-                                    color: primaryColor,
-                                    borderRadius: BorderRadius.circular(10)),
-                              )
-                            ],
-                          ),
-                          verticalSpace(5),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Date",
-                                style: text14w700(black),
+                            ),
+                            horizontalSpace(8),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "Table Tennis",
+                                          style: text16w600(black),
+                                        ),
+                                        InkWell(
+                                          onTap: () {
+                                            registerEvents(snapshot
+                                                .data.docs[index]['event_id']);
+                                          },
+                                          child: Container(
+                                            height: 35,
+                                            width: 70,
+                                            child: Center(
+                                                child: Text(
+                                              "Join Now",
+                                              style: text14w700(black),
+                                            )),
+                                            decoration: BoxDecoration(
+                                                color: primaryColor,
+                                                borderRadius:
+                                                    BorderRadius.circular(10)),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                    verticalSpace(5),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "Date",
+                                          style: text14w700(black),
+                                        ),
+                                        Text(
+                                          snapshot.data.docs[index]['date'],
+                                          style: text12w400(black),
+                                        )
+                                      ],
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "Start time",
+                                          style: text14w700(black),
+                                        ),
+                                        Text(
+                                          snapshot.data.docs[index]['stime'],
+                                          style: text12w400(black),
+                                        )
+                                      ],
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "End time",
+                                          style: text14w700(black),
+                                        ),
+                                        Text(
+                                          snapshot.data.docs[index]['etime'],
+                                          style: text12w400(black),
+                                        )
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
-                              Text(
-                                "09/04/2023",
-                                style: text12w400(black),
-                              )
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Start time",
-                                style: text14w700(black),
-                              ),
-                              Text(
-                                "10:00 AM",
-                                style: text12w400(black),
-                              )
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "End time",
-                                style: text14w700(black),
-                              ),
-                              Text(
-                                "10:45 AM",
-                                style: text12w400(black),
-                              )
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                            )
+                          ],
+                        ),
+                      );
+                    },
                   )
-                ],
-              ),
-            );
+                : CircularProgressIndicator();
           },
-        ),
+        )
       ]),
     );
   }

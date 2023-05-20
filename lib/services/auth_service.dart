@@ -106,6 +106,7 @@ class AuthService {
         final user = userCredential.user;
 
         bool decision = await DatabaseService(uid: user!.uid).checkUserExists();
+        await HelperFunctions.saveUserUidSF(user.uid);
         if (decision) {
           return true;
         } else {

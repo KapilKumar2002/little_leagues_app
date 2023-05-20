@@ -45,6 +45,10 @@ TextStyle text15w500(Color color) {
   return TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: color);
 }
 
+TextStyle text15w400(Color color) {
+  return TextStyle(fontSize: 15, fontWeight: FontWeight.w400, color: color);
+}
+
 TextStyle text14w500(Color color, {TextOverflow? overflow}) {
   return TextStyle(
       fontSize: 14,
@@ -53,8 +57,44 @@ TextStyle text14w500(Color color, {TextOverflow? overflow}) {
       overflow: overflow);
 }
 
-TextStyle text14w400(Color color) {
-  return TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: color);
+TextStyle text14w800(Color color, {TextOverflow? overflow}) {
+  return TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w800,
+      color: color,
+      overflow: overflow);
+}
+
+TextStyle text12w800(Color color, {TextOverflow? overflow}) {
+  return TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.w800,
+      color: color,
+      overflow: overflow);
+}
+
+TextStyle text10w800(Color color, {TextOverflow? overflow}) {
+  return TextStyle(
+      fontSize: 10,
+      fontWeight: FontWeight.w800,
+      color: color,
+      overflow: overflow);
+}
+
+TextStyle text8w800(Color color, {TextOverflow? overflow}) {
+  return TextStyle(
+      fontSize: 8,
+      fontWeight: FontWeight.w800,
+      color: color,
+      overflow: overflow);
+}
+
+TextStyle text14w400(Color color, {FontStyle? fontStyle}) {
+  return TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
+      color: color,
+      fontStyle: fontStyle);
 }
 
 TextStyle text14w700(Color color) {
@@ -69,12 +109,14 @@ TextStyle text8w400(Color color) {
   return TextStyle(fontSize: 8, fontWeight: FontWeight.w400, color: color);
 }
 
-TextStyle text12w400(Color color) {
+TextStyle text12w400(Color color,
+    {TextOverflow? overflow, FontStyle? fontStyle}) {
   return TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.w400,
+    fontStyle: fontStyle,
     color: color,
-    overflow: TextOverflow.clip,
+    overflow: overflow ?? TextOverflow.clip,
   );
 }
 
@@ -120,6 +162,10 @@ height(BuildContext context) {
 
 void NextScreen(context, page) {
   Navigator.push(context, MaterialPageRoute(builder: (context) => page));
+}
+
+void popBack(context) {
+  Navigator.pop(context);
 }
 
 void nextScreenReplace(context, page) {

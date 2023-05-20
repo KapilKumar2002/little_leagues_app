@@ -43,12 +43,13 @@ class _InfoScreenState extends State<InfoScreen> {
         "address": addressController.text
       }).whenComplete(() async {
         if (widget.phone == 3) {
-          print("object");
           final userData = await FirebaseFirestore.instance
               .collection("users")
               .doc(user!.uid)
               .get();
-          if (userData.data() == null) {
+          final data = userData.data() as Map<String, dynamic>;
+
+          if (data['groupId'] == "") {
             await DatabaseService(uid: user!.uid).createGroup(
               nameController.text,
               user!.uid,

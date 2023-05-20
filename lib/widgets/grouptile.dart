@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:little_leagues/screens/chat_bot.dart';
 import 'package:little_leagues/screens/messages.dart';
 import 'package:little_leagues/utils/constants.dart';
 
@@ -7,12 +6,18 @@ class GroupTile extends StatefulWidget {
   final String groupId;
   final String groupName;
   final String userName;
-  const GroupTile({
-    Key? key,
-    required this.groupId,
-    required this.groupName,
-    required this.userName,
-  }) : super(key: key);
+  final String recentMessage;
+  final String recentTime;
+  final String sender;
+  const GroupTile(
+      {Key? key,
+      required this.groupId,
+      required this.groupName,
+      required this.userName,
+      required this.recentTime,
+      required this.sender,
+      required this.recentMessage})
+      : super(key: key);
 
   @override
   State<GroupTile> createState() => _GroupTileState();
@@ -26,6 +31,7 @@ class _GroupTileState extends State<GroupTile> {
         NextScreen(
             context,
             MessagePage(
+              height: height(context) - 70,
               groupId: widget.groupId,
               groupName: widget.groupName,
               userName: widget.userName,
@@ -50,8 +56,16 @@ class _GroupTileState extends State<GroupTile> {
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           subtitle: Text(
-            "",
-            style: const TextStyle(fontSize: 13),
+            widget.sender == "admin"
+                ? "You: " + widget.recentMessage
+                : widget.sender + ":" + " " + widget.recentMessage,
+            style: text12w400(grey, overflow: TextOverflow.ellipsis),
+          ),
+          trailing: Text(
+            widget.recentTime,
+            style: text10w400(
+              black,
+            ),
           ),
         ),
       ),

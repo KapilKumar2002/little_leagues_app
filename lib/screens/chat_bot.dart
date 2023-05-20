@@ -127,6 +127,9 @@ class _ChatPageState extends State<ChatPage> {
                       message: snapshot.data.docs[index]['message'],
                       sender: snapshot.data.docs[index]['sender'],
                       type: snapshot.data.docs[index]['type'],
+                      time: snapshot.data.docs[index]['time'] != null
+                          ? snapshot.data.docs[index]['time']
+                          : "",
                       sentByMe: widget.userName ==
                           snapshot.data.docs[index]['sender']);
                 },

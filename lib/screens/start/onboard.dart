@@ -63,8 +63,7 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
               ),
               ElevatedButton(
                   onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => SignIn()));
+                    nextScreenReplace(context, SignIn());
                   },
                   style: ElevatedButton.styleFrom(
                       backgroundColor: primaryColor,

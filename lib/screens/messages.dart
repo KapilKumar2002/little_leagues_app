@@ -1,14 +1,13 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:little_leagues/services/database_service.dart';
 import 'package:little_leagues/utils/constants.dart';
-
+import 'package:intl/intl.dart';
 import 'dart:math' as math;
 
 import 'package:little_leagues/widgets/messagetile.dart';
@@ -19,11 +18,13 @@ class MessagePage extends StatefulWidget {
   final String groupId;
   final String? groupName;
   final String? userName;
+  final double? height;
   const MessagePage(
       {Key? key,
       required this.groupId,
       required this.groupName,
       required this.userName,
+      required this.height,
       this.token})
       : super(key: key);
 
@@ -158,24 +159,45 @@ class _MessagePageState extends State<MessagePage> {
     );
   }
 
+  @override
+  DateTime fromJson(Timestamp timestamp) {
+    return timestamp.toDate();
+  }
+
   chatMessages() {
     return StreamBuilder(
       stream: chats,
       builder: (context, AsyncSnapshot snapshot) {
         return snapshot.hasData
             ? Container(
-                height: widget.token == "admin"
-                    ? height(context) - 70
-                    : height(context) - 225,
+                height: widget.height,
                 child: ListView.builder(
                   itemCount: snapshot.data.docs.length,
                   itemBuilder: (context, index) {
-                    return MessageTile(
-                        message: snapshot.data.docs[index]['message'],
-                        sender: snapshot.data.docs[index]['sender'],
-                        type: snapshot.data.docs[index]['type'],
-                        sentByMe: widget.userName ==
-                            snapshot.data.docs[index]['sender']);
+                    final DateTime dateTime = fromJson(
+                        snapshot.data.docs[index]['time'] != null
+                            ? snapshot.data.docs[index]['time']
+                            : Timestamp.now());
+
+                    final String date = DateFormat.yMMMd().format(dateTime);
+
+                    return widget.token != "admin"
+                        ? date == DateFormat.yMMMd().format(DateTime.now())
+                            ? MessageTile(
+                                message: snapshot.data.docs[index]['message'],
+                                sender: snapshot.data.docs[index]['sender'],
+                                type: snapshot.data.docs[index]['type'],
+                                time: dateTime,
+                                sentByMe: widget.userName ==
+                                    snapshot.data.docs[index]['sender'])
+                            : Container()
+                        : MessageTile(
+                            message: snapshot.data.docs[index]['message'],
+                            sender: snapshot.data.docs[index]['sender'],
+                            type: snapshot.data.docs[index]['type'],
+                            time: dateTime,
+                            sentByMe: widget.userName ==
+                                snapshot.data.docs[index]['sender']);
                   },
                 ),
               )

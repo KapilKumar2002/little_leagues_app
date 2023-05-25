@@ -22,6 +22,8 @@ class _DashboardPageState extends State<DashboardPage>
 
   String groupId = "";
   String fullName = "";
+  String institution = "";
+  String zipCode = "";
 
   giveId() async {
     // print(user!.uid);
@@ -32,15 +34,12 @@ class _DashboardPageState extends State<DashboardPage>
           .get();
       final data = userCollection.data() as Map<String, dynamic>;
 
-      setState(() {
-        fullName = data['fullName'];
-      });
+      fullName = data['fullName'];
 
-      setState(() {
-        groupId = data['groupId'];
-      });
-
-      // print(groupId);
+      groupId = data['groupId'];
+      institution = data['institution'];
+      zipCode = data['zip_code'];
+      setState(() {});
     }
   }
 
@@ -108,7 +107,7 @@ class _DashboardPageState extends State<DashboardPage>
                         horizontalSpace(15),
                         Text(
                           'Hello, ${widget.username}',
-                          style: text16w600(white),
+                          style: text15w500(white),
                         )
                       ],
                     ),
@@ -116,14 +115,18 @@ class _DashboardPageState extends State<DashboardPage>
                     Row(
                       children: [
                         Text(
-                          'Apartment :',
-                          style: text16w600(white),
+                          'Institution :',
+                          style: text15w500(white),
                         ),
                         horizontalSpace(15),
                         Text(
-                          'apartment name?',
-                          style: text16w600(white),
-                        )
+                          institution.toString(),
+                          style: text15w500(white),
+                        ),
+                        Text(
+                          ", (${zipCode.toString()})",
+                          style: text14w500(white),
+                        ),
                       ],
                     ),
                   ],
@@ -135,7 +138,7 @@ class _DashboardPageState extends State<DashboardPage>
                   controller: tabController,
                   tabs: [
                     Tab(
-                      text: "Current Classes",
+                      text: "My Classes",
                     ),
                     Tab(
                       text: "Other Classes",
@@ -392,20 +395,10 @@ class _CurrentClassesState extends State<CurrentClasses> {
         .collection("users")
         .doc(user!.uid)
         .collection("enrolled_classes")
-        .where("current", isEqualTo: true)
         .snapshots();
     setState(() {
       stream = data;
     });
-  }
-
-  updateEvents(String id) async {
-    await FirebaseFirestore.instance
-        .collection("users")
-        .doc(user!.uid)
-        .collection("enrolled_classes")
-        .doc(id)
-        .update({"current": false});
   }
 
   @override
@@ -421,160 +414,187 @@ class _CurrentClassesState extends State<CurrentClasses> {
       child: Padding(
           padding: const EdgeInsets.all(10.0),
           child: StreamBuilder(
-            stream: stream,
-            builder: (context, snapshot) {
-              return snapshot.hasData
-                  ? ListView.builder(
-                      physics: NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: snapshot.data.docs.length,
-                      itemBuilder: (context, index) {
-                        return Container(
-                            padding: EdgeInsets.all(15),
-                            decoration: BoxDecoration(
-                                boxShadow: [
-                                  BoxShadow(color: white2, blurRadius: 1)
-                                ],
-                                borderRadius: BorderRadius.circular(10),
-                                color: backgroundColor),
-                            margin: EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 7),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                      color: backgroundColor,
+              stream: stream,
+              builder: (context, snapshot) {
+                return snapshot.hasData
+                    ? ListView.builder(
+                        physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: snapshot.data.docs.length,
+                        itemBuilder: (context, index) {
+                          return Container(
+                              padding: EdgeInsets.all(15),
+                              decoration: BoxDecoration(
+                                  boxShadow: [
+                                    BoxShadow(color: white2, blurRadius: 1)
+                                  ],
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: backgroundColor),
+                              margin: EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 7),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                        color: backgroundColor,
+                                        borderRadius: BorderRadius.circular(12),
+                                        boxShadow: [
+                                          BoxShadow(
+                                              color: white2, blurRadius: 1)
+                                        ]),
+                                    child: ClipRRect(
                                       borderRadius: BorderRadius.circular(12),
-                                      boxShadow: [
-                                        BoxShadow(color: white2, blurRadius: 1)
-                                      ]),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: Image.network(
-                                      snapshot.data.docs[index]['class_image'],
-                                      fit: BoxFit.fill,
-                                      width: 75,
-                                      height: 75,
+                                      child: Container(
+                                        width: 75,
+                                        height: 75,
+                                        child: Image.network(
+                                          snapshot.data.docs[index]
+                                              ['class_image'],
+                                          fit: BoxFit.fill,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Container(
+                                              color: white.withOpacity(.6),
+                                              child: Center(
+                                                child: Icon(
+                                                    Icons.image_search_rounded),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                                horizontalSpace(15),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        snapshot.data.docs[index]['class_name'],
-                                        style: text15w500(white2),
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            "Start date",
-                                            style: text14w500(white2),
-                                          ),
-                                          Text(
-                                            snapshot.data.docs[index]
-                                                ['start_date'],
-                                            style: text12w400(white),
-                                          )
-                                        ],
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            "End date",
-                                            style: text14w500(white2),
-                                          ),
-                                          Text(
-                                            snapshot.data.docs[index]
-                                                ['end_date'],
-                                            style: text12w400(white),
-                                          )
-                                        ],
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            "Start time",
-                                            style: text14w500(white2),
-                                          ),
-                                          Text(
-                                            snapshot.data.docs[index]
-                                                ['start_time'],
-                                            style: text12w400(white),
-                                          )
-                                        ],
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            "End time",
-                                            style: text14w500(white2),
-                                          ),
-                                          Text(
-                                            snapshot.data.docs[index]
-                                                ['end_time'],
-                                            style: text12w400(white),
-                                          )
-                                        ],
-                                      ),
-                                      Text(
-                                        "Class Days",
-                                        style: text14w400(primaryColor),
-                                      ),
-                                      verticalSpace(4),
-                                      Container(
-                                        height: 20,
-                                        child: ListView.separated(
-                                            scrollDirection: Axis.horizontal,
-                                            itemBuilder: (context, i) {
-                                              return Container(
-                                                decoration: BoxDecoration(
-                                                    color: primaryColor,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            4)),
-                                                padding: EdgeInsets.all(4),
-                                                child: Text(
-                                                  snapshot.data.docs[index]
-                                                      ['class_days'][i],
-                                                  style: text10w800(black),
+                                  horizontalSpace(15),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          snapshot.data.docs[index]
+                                              ['class_name'],
+                                          style: text15w500(white2),
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "Start time",
+                                              style: text14w500(white2),
+                                            ),
+                                            Text(
+                                              snapshot.data.docs[index]
+                                                  ['start_time'],
+                                              style: text12w400(white),
+                                            )
+                                          ],
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "End time",
+                                              style: text14w500(white2),
+                                            ),
+                                            Text(
+                                              snapshot.data.docs[index]
+                                                  ['end_time'],
+                                              style: text12w400(white),
+                                            )
+                                          ],
+                                        ),
+                                        Text(
+                                          "Class Days",
+                                          style: text14w400(primaryColor),
+                                        ),
+                                        verticalSpace(4),
+                                        Container(
+                                          height: 20,
+                                          child: ListView.separated(
+                                              scrollDirection: Axis.horizontal,
+                                              itemBuilder: (context, i) {
+                                                return Container(
+                                                  decoration: BoxDecoration(
+                                                      color: primaryColor,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              4)),
+                                                  padding: EdgeInsets.all(4),
+                                                  child: Text(
+                                                    snapshot.data.docs[index]
+                                                        ['class_days'][i],
+                                                    style: text10w800(black),
+                                                  ),
+                                                );
+                                              },
+                                              separatorBuilder:
+                                                  (context, index) {
+                                                return horizontalSpace(10);
+                                              },
+                                              itemCount: snapshot
+                                                  .data
+                                                  .docs[index]['class_days']
+                                                  .length),
+                                        ),
+                                        verticalSpace(7),
+                                        snapshot.data.docs[index]
+                                                    ['next_pay_date'] ==
+                                                DateFormat.yMd()
+                                                    .format(DateTime.now())
+                                            ? InkWell(
+                                                onTap: () {},
+                                                child: Container(
+                                                  margin:
+                                                      EdgeInsets.only(top: 12),
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 12,
+                                                      vertical: 7),
+                                                  decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              5),
+                                                      color: primaryColor),
+                                                  child: Text(
+                                                    "Pay Now",
+                                                    style: text14w700(black),
+                                                  ),
                                                 ),
-                                              );
-                                            },
-                                            separatorBuilder: (context, index) {
-                                              return horizontalSpace(10);
-                                            },
-                                            itemCount: snapshot
-                                                .data
-                                                .docs[index]['class_days']
-                                                .length),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              ],
-                            ));
-                      },
-                    )
-                  : Center(
-                      child: CircularProgressIndicator(
-                        color: primaryColor,
-                      ),
-                    );
-            },
-          )),
+                                              )
+                                            : Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    "Next payment date",
+                                                    style: text12w500(
+                                                        primaryColor),
+                                                  ),
+                                                  Text(
+                                                    snapshot.data.docs[index]
+                                                        ['next_pay_date'],
+                                                    style:
+                                                        text10w400(Colors.red),
+                                                  )
+                                                ],
+                                              ),
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ));
+                        },
+                      )
+                    : Center(
+                        child: CircularProgressIndicator(
+                          color: primaryColor,
+                        ),
+                      );
+              })),
     );
   }
 }
@@ -588,7 +608,25 @@ class OtherClasses extends StatefulWidget {
 
 class _OtherClassesState extends State<OtherClasses> {
   Stream? stream;
+  QuerySnapshot? snap;
+  List<String> enrolledClass = [];
   final user = FirebaseAuth.instance.currentUser;
+
+  getEnrolledClasses() async {
+    enrolledClass = [];
+    final enroll = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(user!.uid)
+        .collection("enrolled_classes")
+        .get();
+
+    if (mounted) {
+      setState(() {
+        snap = enroll;
+      });
+    }
+  }
+
   getClasses() async {
     final data =
         await FirebaseFirestore.instance.collection("classes").snapshots();
@@ -606,175 +644,188 @@ class _OtherClassesState extends State<OtherClasses> {
         .doc(user!.uid)
         .collection("enrolled_classes")
         .doc(id)
-        .set(data);
+        .set({
+      "class_days": data['class_days'],
+      "class_id": data['class_id'],
+      "class_image": data['class_image'],
+      "class_name": data['class_name'],
+      "end_time": data['end_time'],
+      "start_time": data['start_time'],
+      "next_pay_date": DateFormat.yMd()
+          .format(DateTime.now().add(Duration(days: 30)))
+          .toString()
+    });
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
   }
 
   @override
   void initState() {
     // TODO: implement initState
     getClasses();
+    getEnrolledClasses();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-        child: StreamBuilder(
+    return StreamBuilder(
       stream: stream,
       builder: (context, snapshot) {
+        getEnrolledClasses();
+        if (snap != null) {
+          for (int i = 0; i < snap!.docs.length; i++) {
+            enrolledClass.add(snap!.docs[i]['class_id']);
+          }
+        }
         return snapshot.hasData
             ? ListView.builder(
-                physics: NeverScrollableScrollPhysics(),
+                // physics: NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: snapshot.data.docs.length,
                 itemBuilder: (context, index) {
-                  return Container(
-                      padding: EdgeInsets.all(15),
-                      decoration: BoxDecoration(
-                          boxShadow: [BoxShadow(color: white2, blurRadius: 1)],
-                          borderRadius: BorderRadius.circular(10),
-                          color: backgroundColor),
-                      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                                color: backgroundColor,
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(color: white2, blurRadius: 1)
-                                ]),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Image.network(
-                                snapshot.data.docs[index]['class_image'],
-                                fit: BoxFit.fill,
-                                width: 75,
-                                height: 75,
-                              ),
-                            ),
-                          ),
-                          horizontalSpace(15),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  snapshot.data.docs[index]['class_name'],
-                                  style: text15w500(white2),
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Start date",
-                                      style: text14w500(white2),
-                                    ),
-                                    Text(
-                                      snapshot.data.docs[index]['start_date'],
-                                      style: text12w400(white),
-                                    )
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "End date",
-                                      style: text14w500(white2),
-                                    ),
-                                    Text(
-                                      snapshot.data.docs[index]['end_date'],
-                                      style: text12w400(white),
-                                    )
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Start time",
-                                      style: text14w500(white2),
-                                    ),
-                                    Text(
-                                      snapshot.data.docs[index]['start_time'],
-                                      style: text12w400(white),
-                                    )
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "End time",
-                                      style: text14w500(white2),
-                                    ),
-                                    Text(
-                                      snapshot.data.docs[index]['end_time'],
-                                      style: text12w400(white),
-                                    )
-                                  ],
-                                ),
-                                Text(
-                                  "Class Days",
-                                  style: text14w400(primaryColor),
-                                ),
-                                verticalSpace(4),
-                                Container(
-                                  height: 20,
-                                  child: ListView.separated(
-                                      scrollDirection: Axis.horizontal,
-                                      itemBuilder: (context, i) {
+                  return enrolledClass
+                          .contains(snapshot.data.docs[index]['class_id'])
+                      ? horizontalSpace(0)
+                      : Container(
+                          padding: EdgeInsets.all(15),
+                          decoration: BoxDecoration(
+                              boxShadow: [
+                                BoxShadow(color: white2, blurRadius: 1)
+                              ],
+                              borderRadius: BorderRadius.circular(10),
+                              color: backgroundColor),
+                          margin:
+                              EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                    color: backgroundColor,
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: [
+                                      BoxShadow(color: white2, blurRadius: 1)
+                                    ]),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Container(
+                                    width: 75,
+                                    height: 75,
+                                    child: Image.network(
+                                      snapshot.data.docs[index]['class_image'],
+                                      fit: BoxFit.fill,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
                                         return Container(
-                                          decoration: BoxDecoration(
-                                              color: primaryColor,
-                                              borderRadius:
-                                                  BorderRadius.circular(4)),
-                                          padding: EdgeInsets.all(4),
-                                          child: Text(
-                                            snapshot.data.docs[index]
-                                                ['class_days'][i],
-                                            style: text10w800(black),
+                                          color: white.withOpacity(.6),
+                                          child: Center(
+                                            child: Icon(
+                                                Icons.image_search_rounded),
                                           ),
                                         );
                                       },
-                                      separatorBuilder: (context, index) {
-                                        return horizontalSpace(10);
-                                      },
-                                      itemCount: snapshot.data
-                                          .docs[index]['class_days'].length),
-                                ),
-                                verticalSpace(10),
-                                InkWell(
-                                  onTap: () {
-                                    joinClass(
-                                        snapshot.data.docs[index]['class_id']);
-                                  },
-                                  child: Container(
-                                    height: 40,
-                                    width: 125,
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(12),
-                                        color: primaryColor),
-                                    child: Center(
-                                      child: Text(
-                                        "Join Now",
-                                        style:
-                                            text16w600(black.withOpacity(.5)),
-                                      ),
                                     ),
                                   ),
-                                )
-                              ],
-                            ),
-                          )
-                        ],
-                      ));
+                                ),
+                              ),
+                              horizontalSpace(15),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      snapshot.data.docs[index]['class_name'],
+                                      style: text15w500(white2),
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "Start time",
+                                          style: text14w500(white2),
+                                        ),
+                                        Text(
+                                          snapshot.data.docs[index]
+                                              ['start_time'],
+                                          style: text12w400(white),
+                                        )
+                                      ],
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "End time",
+                                          style: text14w500(white2),
+                                        ),
+                                        Text(
+                                          snapshot.data.docs[index]['end_time'],
+                                          style: text12w400(white),
+                                        )
+                                      ],
+                                    ),
+                                    Text(
+                                      "Class Days",
+                                      style: text14w400(primaryColor),
+                                    ),
+                                    verticalSpace(4),
+                                    Container(
+                                      height: 20,
+                                      child: ListView.separated(
+                                          scrollDirection: Axis.horizontal,
+                                          itemBuilder: (context, i) {
+                                            return Container(
+                                              decoration: BoxDecoration(
+                                                  color: primaryColor,
+                                                  borderRadius:
+                                                      BorderRadius.circular(4)),
+                                              padding: EdgeInsets.all(4),
+                                              child: Text(
+                                                snapshot.data.docs[index]
+                                                    ['class_days'][i],
+                                                style: text10w800(black),
+                                              ),
+                                            );
+                                          },
+                                          separatorBuilder: (context, index) {
+                                            return horizontalSpace(10);
+                                          },
+                                          itemCount: snapshot
+                                              .data
+                                              .docs[index]['class_days']
+                                              .length),
+                                    ),
+                                    InkWell(
+                                      onTap: () {
+                                        joinClass(snapshot.data.docs[index]
+                                            ['class_id']);
+                                      },
+                                      child: Container(
+                                        margin: EdgeInsets.only(top: 12),
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 7),
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            color: primaryColor),
+                                        child: Text(
+                                          "Join Now",
+                                          style: text14w700(black),
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              )
+                            ],
+                          ));
                 },
               )
             : Center(
@@ -783,6 +834,6 @@ class _OtherClassesState extends State<OtherClasses> {
                 ),
               );
       },
-    ));
+    );
   }
 }

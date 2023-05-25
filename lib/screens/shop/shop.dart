@@ -92,6 +92,16 @@ class _ShopPageState extends State<ShopPage> {
                                   },
                                   child: Container(
                                     width: 120,
+                                    decoration: BoxDecoration(
+                                        color: backgroundColor,
+                                        borderRadius: BorderRadius.circular(4),
+                                        boxShadow: [
+                                          BoxShadow(
+                                              color: white2,
+                                              blurRadius: 2,
+                                              blurStyle: BlurStyle.solid,
+                                              spreadRadius: 1)
+                                        ]),
                                     margin: EdgeInsets.symmetric(
                                         horizontal: 10, vertical: 10),
                                     child: Stack(
@@ -103,6 +113,16 @@ class _ShopPageState extends State<ShopPage> {
                                             child: Image.network(
                                               snapshot.data.docs[index]
                                                   ['s_pic'],
+                                              errorBuilder:
+                                                  (context, error, stackTrace) {
+                                                return Container(
+                                                  color: white.withOpacity(.6),
+                                                  child: Center(
+                                                    child: Icon(Icons
+                                                        .image_search_rounded),
+                                                  ),
+                                                );
+                                              },
                                               fit: BoxFit.cover,
                                               width: double.infinity,
                                               height: double.infinity,
@@ -119,7 +139,7 @@ class _ShopPageState extends State<ShopPage> {
                                               snapshot.data.docs[index]['sname']
                                                   .toString()
                                                   .toUpperCase(),
-                                              style: text12w800(white2),
+                                              style: text10w800(white2),
                                               textAlign: TextAlign.center,
                                             ),
                                           ),
@@ -178,6 +198,16 @@ class _ShopPageState extends State<ShopPage> {
                                   ));
                             },
                             child: Container(
+                              decoration: BoxDecoration(
+                                  color: backgroundColor,
+                                  borderRadius: BorderRadius.circular(4),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: white2,
+                                        blurRadius: 1,
+                                        blurStyle: BlurStyle.solid,
+                                        spreadRadius: 1)
+                                  ]),
                               margin: EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 10),
                               child: Stack(children: [
@@ -188,6 +218,15 @@ class _ShopPageState extends State<ShopPage> {
                                     height: double.infinity,
                                     width: double.infinity,
                                     fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        color: white.withOpacity(.6),
+                                        child: Center(
+                                          child:
+                                              Icon(Icons.image_search_rounded),
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ),
                                 Padding(

@@ -49,13 +49,24 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
     }
   }
 
+  String? selectedSize;
+
   addToCart() async {
-    productDetails.addAll({"size": "M", "qty": 1});
-    await userCollection
-        .doc(user!.uid)
-        .collection("cart")
-        .doc(widget.pid)
-        .set(productDetails);
+    await userCollection.doc(user!.uid).collection("cart").doc(widget.pid).set({
+      "bestseller": productDetails['bestseller'],
+      "category": productDetails['category'],
+      "desc": productDetails['desc'],
+      "image": productDetails['image'],
+      "name": productDetails['name'],
+      "pid": productDetails['pid'],
+      "price": productDetails['price'],
+      "previous price": productDetails['previous price'],
+      "rating": productDetails['rating'],
+      "size": productDetails['size'],
+      "type": productDetails['type'],
+      "selectedSize": selectedSize == null ? "" : selectedSize,
+      "qty": 1
+    });
   }
 
   List<Widget> list = [];
@@ -79,11 +90,17 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
     // if (productDetails['image'].length != null) {
     for (int i = 0; i < productDetails['image'].length; i++) {
       list.add(
-        Image(
-          image: NetworkImage(productDetails['image'][i]),
+        Container(
           height: 450,
-          fit: BoxFit.cover,
-          width: double.infinity,
+          child: Image(
+            image: NetworkImage(productDetails['image'][i]),
+            height: 425,
+            errorBuilder: (context, error, stackTrace) {
+              return Text("data");
+            },
+            fit: BoxFit.contain,
+            // width: width(context) - 20,
+          ),
         ),
       );
     }
@@ -144,7 +161,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                               options: CarouselOptions(
                                   viewportFraction: 1,
                                   enlargeCenterPage: true,
-                                  // autoPlay: true,
+                                  autoPlay: true,
                                   height: double.infinity,
                                   onPageChanged: (index, reason) {
                                     setState(() {
@@ -335,33 +352,48 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                                     ))
                               ],
                             ),
-                            Container(
-                              height: 35,
-                              child: ListView.builder(
-                                itemCount: 5,
-                                shrinkWrap: true,
-                                scrollDirection: Axis.horizontal,
-                                itemBuilder: (context, index) {
-                                  return Container(
-                                    margin: EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 5),
+                            productDetails['type'] == "upper" ||
+                                    productDetails['type'] == "bottom"
+                                ? Container(
                                     height: 35,
-                                    width: 60,
-                                    child: Center(
-                                      child: Text(
-                                        "M",
-                                        style: text15w500(black),
-                                      ),
+                                    child: ListView.builder(
+                                      itemCount: productDetails['size'].length,
+                                      shrinkWrap: true,
+                                      scrollDirection: Axis.horizontal,
+                                      itemBuilder: (context, index) {
+                                        return InkWell(
+                                          onTap: () {
+                                            setState(() {
+                                              selectedSize =
+                                                  productDetails['size'][index];
+                                            });
+                                          },
+                                          child: Container(
+                                            margin: EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 5),
+                                            height: 35,
+                                            width: 60,
+                                            child: Center(
+                                              child: Text(
+                                                productDetails['size'][index]
+                                                    .toString()
+                                                    .toUpperCase(),
+                                                style: text15w500(black),
+                                              ),
+                                            ),
+                                            decoration: BoxDecoration(
+                                                color: primaryColor,
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                      color: grey,
+                                                      blurRadius: 2),
+                                                ]),
+                                          ),
+                                        );
+                                      },
                                     ),
-                                    decoration: BoxDecoration(
-                                        color: primaryColor,
-                                        boxShadow: [
-                                          BoxShadow(color: grey, blurRadius: 2),
-                                        ]),
-                                  );
-                                },
-                              ),
-                            )
+                                  )
+                                : horizontalSpace(0),
                           ],
                         ),
                       ),
@@ -524,104 +556,33 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                 Expanded(
                   child: InkWell(
                     onTap: () {
-                      addToCart();
-                      showModalBottomSheet(
-                        backgroundColor: transparentColor,
-                        isDismissible: false,
-                        context: context,
-                        builder: (context) {
-                          return Wrap(
-                            children: [
-                              Align(
-                                alignment: AlignmentDirectional.topEnd,
-                                child: Container(
-                                  color: white2,
-                                  height: 50,
-                                  width: 50,
-                                  child: IconButton(
-                                      onPressed: () {
-                                        popBack(context);
-                                      },
-                                      icon: Icon(Icons.clear)),
-                                ),
-                              ),
-                              Container(
-                                color: white2,
-                                child: Column(
-                                  children: [
-                                    verticalSpace(15),
-                                    InkWell(
-                                      onTap: () {
-                                        popBack(context);
-                                        NextScreen(context, YourCart());
-                                      },
-                                      child: Container(
-                                        margin: EdgeInsets.symmetric(
-                                            horizontal: 15, vertical: 10),
-                                        decoration: BoxDecoration(
-                                            boxShadow: [
-                                              BoxShadow(
-                                                  color: grey, blurRadius: 2)
-                                            ],
-                                            color: black,
-                                            borderRadius:
-                                                BorderRadius.circular(2)),
-                                        height: 50,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Icon(
-                                              Icons.check_circle_rounded,
-                                              color: Colors.red,
-                                            ),
-                                            horizontalSpace(8),
-                                            Text(
-                                              "Item has been added",
-                                              style: text18w500(white2),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    InkWell(
-                                      onTap: () {
-                                        popBack(context);
-                                        NextScreen(context, YourCart());
-                                      },
-                                      child: Container(
-                                        margin: EdgeInsets.symmetric(
-                                            horizontal: 15, vertical: 10),
-                                        decoration: BoxDecoration(
-                                            boxShadow: [
-                                              BoxShadow(
-                                                  color: grey, blurRadius: 2)
-                                            ],
-                                            color: primaryColor,
-                                            borderRadius:
-                                                BorderRadius.circular(2)),
-                                        height: 50,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              "Go to cart",
-                                              style: text18w500(black),
-                                            ),
-                                            horizontalSpace(8),
-                                            Icon(Icons.arrow_forward)
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                      if (productDetails['type'] == "upper" ||
+                          productDetails['type'] == "bottom") {
+                        if (selectedSize == null) {
+                          openSnackbar(
+                              context, "Please Select the size", primaryColor);
+                        } else {
+                          addToCart();
+                          showModalBottomSheet(
+                            backgroundColor: transparentColor,
+                            isDismissible: false,
+                            context: context,
+                            builder: (context) {
+                              return ShowBottomSheet();
+                            },
                           );
-                        },
-                      );
+                        }
+                      } else {
+                        addToCart();
+                        showModalBottomSheet(
+                          backgroundColor: transparentColor,
+                          isDismissible: false,
+                          context: context,
+                          builder: (context) {
+                            return ShowBottomSheet();
+                          },
+                        );
+                      }
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -648,6 +609,87 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget ShowBottomSheet() {
+    return Wrap(
+      children: [
+        Align(
+          alignment: AlignmentDirectional.topEnd,
+          child: Container(
+            color: white2,
+            height: 50,
+            width: 50,
+            child: IconButton(
+                onPressed: () {
+                  popBack(context);
+                },
+                icon: Icon(Icons.clear)),
+          ),
+        ),
+        Container(
+          color: white2,
+          child: Column(
+            children: [
+              verticalSpace(15),
+              InkWell(
+                onTap: () {
+                  popBack(context);
+                  NextScreen(context, YourCart());
+                },
+                child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                  decoration: BoxDecoration(
+                      boxShadow: [BoxShadow(color: grey, blurRadius: 2)],
+                      color: black,
+                      borderRadius: BorderRadius.circular(2)),
+                  height: 50,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.check_circle_rounded,
+                        color: Colors.red,
+                      ),
+                      horizontalSpace(8),
+                      Text(
+                        "Item has been added",
+                        style: text18w500(white2),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              InkWell(
+                onTap: () {
+                  popBack(context);
+                  NextScreen(context, YourCart());
+                },
+                child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                  decoration: BoxDecoration(
+                      boxShadow: [BoxShadow(color: grey, blurRadius: 2)],
+                      color: primaryColor,
+                      borderRadius: BorderRadius.circular(2)),
+                  height: 50,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Go to cart",
+                        style: text18w500(black),
+                      ),
+                      horizontalSpace(8),
+                      Icon(Icons.arrow_forward)
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

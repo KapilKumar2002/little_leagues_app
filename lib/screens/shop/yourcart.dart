@@ -7,6 +7,8 @@ import 'package:flutter_number_picker/flutter_number_picker.dart';
 import 'package:little_leagues/utils/constants.dart';
 import 'dart:math' as math;
 
+import 'package:little_leagues/widgets/showsnackbar.dart';
+
 class YourCart extends StatefulWidget {
   const YourCart({super.key});
 
@@ -15,6 +17,12 @@ class YourCart extends StatefulWidget {
 }
 
 class _YourCartState extends State<YourCart> {
+  bool itemcheck = true;
+  bool selectAll = true;
+  num totalamount = 0;
+  num rtotal = 0;
+  num charge = 50;
+  String? selectedSize;
   final user = FirebaseAuth.instance.currentUser;
   Stream? cartProducts;
   final CollectionReference userCollection =
@@ -32,16 +40,24 @@ class _YourCartState extends State<YourCart> {
     await userCollection.doc(user!.uid).collection("cart").doc(id).delete();
   }
 
-  num totalamount = 0;
-  num rtotal = 0;
-  num charge = 50;
-
   updateQTY(String id, int qty) async {
     await userCollection
         .doc(user!.uid)
         .collection("cart")
         .doc(id)
         .update({"qty": qty});
+  }
+
+  updateSize(String id) async {
+    await userCollection
+        .doc(user!.uid)
+        .collection("cart")
+        .doc(id)
+        .update({"selectedSize": selectedSize});
+  }
+
+  deleteAll() async {
+    await userCollection.doc(user!.uid).collection("cart");
   }
 
   @override
@@ -122,18 +138,6 @@ class _YourCartState extends State<YourCart> {
                   padding: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
                   child: Column(
                     children: [
-                      Row(children: [
-                        Checkbox(
-                          value: false,
-                          onChanged: (value) {},
-                        ),
-                        horizontalSpace(10),
-                        Text(
-                          "1/1 Item selected",
-                          style: text12w500(black),
-                        )
-                      ]),
-                      Divider(),
                       StreamBuilder(
                         stream: cartProducts,
                         builder: (context, AsyncSnapshot snapshot) {
@@ -148,296 +152,381 @@ class _YourCartState extends State<YourCart> {
                             }
                           }
                           return snapshot.hasData
-                              ? ListView.separated(
-                                  separatorBuilder: (context, index) {
-                                    return Divider();
-                                  },
-                                  itemCount: snapshot.data.docs.length,
-                                  shrinkWrap: true,
-                                  physics: NeverScrollableScrollPhysics(),
-                                  itemBuilder: (context, index) {
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 8),
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Image.network(
-                                            snapshot.data.docs[index]['image']
-                                                [0],
-                                            width: 60,
-                                            height: 60,
-                                            fit: BoxFit.cover,
+                              ? Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(children: [
+                                          Checkbox(
+                                            value: selectAll,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                selectAll = !selectAll;
+                                              });
+                                            },
                                           ),
-                                          horizontalSpace(12),
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
+                                          horizontalSpace(10),
+                                          Text(
+                                            (selectAll
+                                                        ? "${snapshot.data.docs.length}"
+                                                        : "1")
+                                                    .toString() +
+                                                "/${snapshot.data.docs.length} Item selected",
+                                            style: text12w500(black),
+                                          )
+                                        ]),
+                                        selectAll
+                                            ? IconButton(
+                                                onPressed: () {
+                                                  deleteAll();
+                                                },
+                                                icon: Icon(Icons.delete))
+                                            : horizontalSpace(0),
+                                      ],
+                                    ),
+                                    Divider(),
+                                    ListView.separated(
+                                      separatorBuilder: (context, index) {
+                                        return Divider();
+                                      },
+                                      itemCount: snapshot.data.docs.length,
+                                      shrinkWrap: true,
+                                      physics: NeverScrollableScrollPhysics(),
+                                      itemBuilder: (context, index) {
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 8),
+                                          child: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Stack(
+                                                children: [
+                                                  Image.network(
+                                                    snapshot.data.docs[index]
+                                                        ['image'][0],
+                                                    width: 60,
+                                                    height: 60,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                  Checkbox(
+                                                    value: itemcheck,
+                                                    checkColor: black,
+                                                    activeColor: primaryColor,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                            side: BorderSide(
+                                                                color: Colors
+                                                                    .blue)),
+                                                    onChanged: (value) {
+                                                      setState(() {
+                                                        itemcheck = !itemcheck;
+                                                      });
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                              horizontalSpace(12),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
                                                   children: [
-                                                    Text(
-                                                      snapshot.data
-                                                          .docs[index]['name']
-                                                          .toString()
-                                                          .toUpperCase(),
-                                                      style: text14w400(black),
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        Text(
+                                                          snapshot
+                                                              .data
+                                                              .docs[index]
+                                                                  ['name']
+                                                              .toString()
+                                                              .toUpperCase(),
+                                                          style:
+                                                              text14w400(black),
+                                                        ),
+                                                        InkWell(
+                                                            onTap: () {
+                                                              removeProduct(snapshot
+                                                                          .data
+                                                                          .docs[
+                                                                      index]
+                                                                  ['pid']);
+                                                            },
+                                                            child: Icon(
+                                                                Icons.delete))
+                                                      ],
                                                     ),
-                                                    InkWell(
-                                                        onTap: () {
-                                                          removeProduct(snapshot
-                                                                  .data
-                                                                  .docs[index]
-                                                              ['pid']);
-                                                        },
-                                                        child:
-                                                            Icon(Icons.delete))
-                                                  ],
-                                                ),
-                                                verticalSpace(5),
-                                                Text(
-                                                  snapshot.data.docs[index]
-                                                      ['desc'],
-                                                  style: text12w500(black),
-                                                ),
-                                                verticalSpace(10),
-                                                Row(
-                                                  children: [
-                                                    InkWell(
-                                                      onTap: () {
-                                                        showModalBottomSheet(
-                                                          backgroundColor:
-                                                              transparentColor,
-                                                          context: context,
-                                                          builder: (context) {
-                                                            return Wrap(
-                                                              children: [
-                                                                Align(
-                                                                  alignment:
-                                                                      AlignmentDirectional
-                                                                          .topEnd,
-                                                                  child:
-                                                                      Container(
-                                                                    color:
-                                                                        white2,
-                                                                    height: 50,
-                                                                    width: 50,
-                                                                    child: IconButton(
-                                                                        onPressed: () {
-                                                                          popBack(
-                                                                              context);
-                                                                        },
-                                                                        icon: Icon(Icons.clear)),
-                                                                  ),
-                                                                ),
-                                                                Container(
-                                                                  padding: EdgeInsets
-                                                                      .symmetric(
-                                                                          horizontal:
-                                                                              20),
-                                                                  width: width(
-                                                                      context),
-                                                                  color: white2,
-                                                                  child: Column(
-                                                                    children: [
-                                                                      verticalSpace(
-                                                                          15),
-                                                                      Container(
-                                                                        color:
-                                                                            white2,
-                                                                        child:
-                                                                            Column(
-                                                                          children: [
-                                                                            Row(
-                                                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    verticalSpace(5),
+                                                    Text(
+                                                      snapshot.data.docs[index]
+                                                          ['desc'],
+                                                      style: text12w500(black),
+                                                    ),
+                                                    verticalSpace(10),
+                                                    Row(
+                                                      children: [
+                                                        snapshot.data.docs[index]
+                                                                        [
+                                                                        "type"] ==
+                                                                    "upper" ||
+                                                                snapshot.data.docs[
+                                                                            index]
+                                                                        [
+                                                                        "type"] ==
+                                                                    "bottom"
+                                                            ? InkWell(
+                                                                onTap: () {
+                                                                  showModalBottomSheet(
+                                                                    backgroundColor:
+                                                                        transparentColor,
+                                                                    context:
+                                                                        context,
+                                                                    builder:
+                                                                        (context) {
+                                                                      return Wrap(
+                                                                        children: [
+                                                                          Align(
+                                                                            alignment:
+                                                                                AlignmentDirectional.topEnd,
+                                                                            child:
+                                                                                Container(
+                                                                              color: white2,
+                                                                              height: 50,
+                                                                              width: 50,
+                                                                              child: IconButton(
+                                                                                  onPressed: () {
+                                                                                    popBack(context);
+                                                                                  },
+                                                                                  icon: Icon(Icons.clear)),
+                                                                            ),
+                                                                          ),
+                                                                          Container(
+                                                                            padding:
+                                                                                EdgeInsets.symmetric(horizontal: 20),
+                                                                            width:
+                                                                                width(context),
+                                                                            color:
+                                                                                white2,
+                                                                            child:
+                                                                                Column(
                                                                               children: [
-                                                                                Text(
-                                                                                  "SELECT SIZE",
-                                                                                  style: text16w600(black),
+                                                                                verticalSpace(15),
+                                                                                Container(
+                                                                                  color: white2,
+                                                                                  child: Column(
+                                                                                    children: [
+                                                                                      Row(
+                                                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                        children: [
+                                                                                          Text(
+                                                                                            "SELECT SIZE",
+                                                                                            style: text16w600(black),
+                                                                                          ),
+                                                                                          TextButton(
+                                                                                              onPressed: () {},
+                                                                                              child: Text(
+                                                                                                "Size chart",
+                                                                                                style: text14w400(Colors.blueAccent),
+                                                                                              ))
+                                                                                        ],
+                                                                                      ),
+                                                                                      Container(
+                                                                                        height: 40,
+                                                                                        child: ListView.builder(
+                                                                                          itemCount: 5,
+                                                                                          shrinkWrap: true,
+                                                                                          scrollDirection: Axis.horizontal,
+                                                                                          itemBuilder: (context, i) {
+                                                                                            return InkWell(
+                                                                                              onTap: () {
+                                                                                                setState(() {
+                                                                                                  selectedSize = snapshot.data.docs[index]['size'][i];
+                                                                                                });
+                                                                                              },
+                                                                                              child: Container(
+                                                                                                margin: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                                                                                                height: 35,
+                                                                                                width: 60,
+                                                                                                child: Center(
+                                                                                                  child: Text(
+                                                                                                    snapshot.data.docs[index]['size'][i].toString().toUpperCase(),
+                                                                                                    style: text15w500(black),
+                                                                                                  ),
+                                                                                                ),
+                                                                                                decoration: BoxDecoration(color: primaryColor, boxShadow: [
+                                                                                                  BoxShadow(color: grey, blurRadius: 2),
+                                                                                                ]),
+                                                                                              ),
+                                                                                            );
+                                                                                          },
+                                                                                        ),
+                                                                                      )
+                                                                                    ],
+                                                                                  ),
                                                                                 ),
-                                                                                TextButton(
-                                                                                    onPressed: () {},
+                                                                                verticalSpace(20),
+                                                                                ElevatedButton(
+                                                                                    style: ElevatedButton.styleFrom(minimumSize: Size(width(context), 45), backgroundColor: primaryColor),
+                                                                                    onPressed: () {
+                                                                                      if (selectedSize == null) {
+                                                                                        popBack(context);
+                                                                                        openSnackbar(context, "You haven't changed size", primaryColor);
+                                                                                      } else {
+                                                                                        popBack(context);
+                                                                                        openSnackbar(context, "You have changed size to ${selectedSize.toString().toUpperCase()}", primaryColor);
+                                                                                        updateSize(snapshot.data.docs[index]['pid']);
+                                                                                      }
+                                                                                    },
                                                                                     child: Text(
-                                                                                      "Size chart",
-                                                                                      style: text14w400(Colors.blueAccent),
+                                                                                      "Update",
+                                                                                      style: text16w600(black),
                                                                                     ))
                                                                               ],
                                                                             ),
-                                                                            Container(
-                                                                              height: 40,
-                                                                              child: ListView.builder(
-                                                                                itemCount: 5,
-                                                                                shrinkWrap: true,
-                                                                                scrollDirection: Axis.horizontal,
-                                                                                itemBuilder: (context, index) {
-                                                                                  return Container(
-                                                                                    margin: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                                                                                    height: 35,
-                                                                                    width: 60,
-                                                                                    child: Center(
-                                                                                      child: Text(
-                                                                                        snapshot.data.docs[index]['size'],
-                                                                                        style: text15w500(black),
-                                                                                      ),
-                                                                                    ),
-                                                                                    decoration: BoxDecoration(color: primaryColor, boxShadow: [
-                                                                                      BoxShadow(color: grey, blurRadius: 2),
-                                                                                    ]),
-                                                                                  );
-                                                                                },
-                                                                              ),
-                                                                            )
-                                                                          ],
-                                                                        ),
+                                                                          ),
+                                                                        ],
+                                                                      );
+                                                                    },
+                                                                  );
+                                                                },
+                                                                child:
+                                                                    Container(
+                                                                  decoration: BoxDecoration(
+                                                                      color:
+                                                                          primaryColor,
+                                                                      boxShadow: [
+                                                                        BoxShadow(
+                                                                            color:
+                                                                                grey,
+                                                                            blurRadius:
+                                                                                1)
+                                                                      ]),
+                                                                  width: 75,
+                                                                  height: 25,
+                                                                  child: Row(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .center,
+                                                                    children: [
+                                                                      Text(
+                                                                        "Size: ${snapshot.data.docs[index]['selectedSize'].toString().toUpperCase()}",
+                                                                        style: text12w400(
+                                                                            black),
                                                                       ),
-                                                                      verticalSpace(
-                                                                          20),
-                                                                      ElevatedButton(
-                                                                          style: ElevatedButton.styleFrom(
-                                                                              minimumSize: Size(width(context), 45),
-                                                                              backgroundColor: primaryColor),
-                                                                          onPressed: () {},
-                                                                          child: Text(
-                                                                            "Update",
-                                                                            style:
-                                                                                text16w600(black),
-                                                                          ))
+                                                                      horizontalSpace(
+                                                                          2),
+                                                                      Icon(
+                                                                        CupertinoIcons
+                                                                            .chevron_down,
+                                                                        size:
+                                                                            12,
+                                                                      )
                                                                     ],
                                                                   ),
                                                                 ),
-                                                              ],
-                                                            );
-                                                          },
-                                                        );
-                                                      },
-                                                      child: Container(
-                                                        decoration:
-                                                            BoxDecoration(
-                                                                color:
-                                                                    primaryColor,
-                                                                boxShadow: [
-                                                              BoxShadow(
-                                                                  color: grey,
-                                                                  blurRadius: 1)
-                                                            ]),
-                                                        width: 60,
-                                                        height: 25,
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            Text(
-                                                              "Size: M",
-                                                              style: text12w400(
-                                                                  black),
-                                                            ),
-                                                            horizontalSpace(2),
-                                                            Icon(
-                                                              CupertinoIcons
-                                                                  .chevron_down,
-                                                              size: 12,
-                                                            )
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    horizontalSpace(20),
-                                                    Container(
-                                                      width: 75,
-                                                      height: 25,
-                                                      decoration: BoxDecoration(
-                                                          color: primaryColor),
-                                                      child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: [
-                                                          InkWell(
-                                                              onTap: () async {
-                                                                if (snapshot.data
-                                                                            .docs[index]
-                                                                        [
-                                                                        'qty'] >
-                                                                    1) {
-                                                                  updateQTY(
-                                                                      snapshot.data
-                                                                              .docs[index]
-                                                                          [
-                                                                          'pid'],
-                                                                      snapshot.data.docs[index]
+                                                              )
+                                                            : horizontalSpace(
+                                                                0),
+                                                        horizontalSpace(20),
+                                                        Container(
+                                                          width: 75,
+                                                          height: 25,
+                                                          decoration: BoxDecoration(
+                                                              color:
+                                                                  primaryColor),
+                                                          child: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            children: [
+                                                              InkWell(
+                                                                  onTap:
+                                                                      () async {
+                                                                    if (snapshot
+                                                                            .data
+                                                                            .docs[index]['qty'] >
+                                                                        1) {
+                                                                      updateQTY(
+                                                                          snapshot.data.docs[index]
                                                                               [
-                                                                              'qty'] -
-                                                                          1);
-                                                                }
-                                                              },
-                                                              child: Icon(Icons
-                                                                  .remove)),
-                                                          Container(
-                                                            width: 25,
-                                                            child: Center(
-                                                              child: Text(snapshot
-                                                                  .data
-                                                                  .docs[index]
-                                                                      ['qty']
-                                                                  .toString()),
-                                                            ),
+                                                                              'pid'],
+                                                                          snapshot.data.docs[index]['qty'] -
+                                                                              1);
+                                                                    }
+                                                                  },
+                                                                  child: Icon(Icons
+                                                                      .remove)),
+                                                              Container(
+                                                                width: 25,
+                                                                child: Center(
+                                                                  child: Text(snapshot
+                                                                      .data
+                                                                      .docs[
+                                                                          index]
+                                                                          [
+                                                                          'qty']
+                                                                      .toString()),
+                                                                ),
+                                                              ),
+                                                              InkWell(
+                                                                  onTap:
+                                                                      () async {
+                                                                    if (snapshot
+                                                                            .data
+                                                                            .docs[index]['qty'] <
+                                                                        5) {
+                                                                      updateQTY(
+                                                                          snapshot.data.docs[index]
+                                                                              [
+                                                                              'pid'],
+                                                                          snapshot.data.docs[index]['qty'] +
+                                                                              1);
+                                                                    }
+                                                                  },
+                                                                  child: Icon(
+                                                                      Icons
+                                                                          .add)),
+                                                            ],
                                                           ),
-                                                          InkWell(
-                                                              onTap: () async {
-                                                                if (snapshot.data
-                                                                            .docs[index]
-                                                                        [
-                                                                        'qty'] <
-                                                                    5) {
-                                                                  updateQTY(
-                                                                      snapshot.data
-                                                                              .docs[index]
-                                                                          [
-                                                                          'pid'],
-                                                                      snapshot.data.docs[index]
-                                                                              [
-                                                                              'qty'] +
-                                                                          1);
-                                                                }
-                                                              },
-                                                              child: Icon(
-                                                                  Icons.add)),
-                                                        ],
-                                                      ),
-                                                    )
+                                                        )
+                                                      ],
+                                                    ),
+                                                    verticalSpace(7),
+                                                    Text.rich(
+                                                        TextSpan(children: [
+                                                      TextSpan(
+                                                          text:
+                                                              "\u20B9 ${snapshot.data.docs[index]['price']} ",
+                                                          style: text12w500(
+                                                              black)),
+                                                      TextSpan(
+                                                          text:
+                                                              "\u20B9 ${snapshot.data.docs[index]['previous price']}",
+                                                          style: text10w500(
+                                                              grey,
+                                                              decoration:
+                                                                  TextDecoration
+                                                                      .lineThrough))
+                                                    ])),
+                                                    verticalSpace(4),
+                                                    Text(
+                                                        "Delivery by 11th May 2023",
+                                                        style:
+                                                            text12w400(grey)),
                                                   ],
                                                 ),
-                                                verticalSpace(7),
-                                                Text.rich(TextSpan(children: [
-                                                  TextSpan(
-                                                      text:
-                                                          "\u20B9 ${snapshot.data.docs[index]['price']} ",
-                                                      style: text12w500(black)),
-                                                  TextSpan(
-                                                      text:
-                                                          "\u20B9 ${snapshot.data.docs[index]['previous price']}",
-                                                      style: text10w500(grey,
-                                                          decoration:
-                                                              TextDecoration
-                                                                  .lineThrough))
-                                                ])),
-                                                verticalSpace(4),
-                                                Text(
-                                                    "Delivery by 11th May 2023",
-                                                    style: text12w400(grey)),
-                                              ],
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    );
-                                  },
+                                              )
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ],
                                 )
                               : horizontalSpace(0);
                         },

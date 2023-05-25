@@ -219,6 +219,17 @@ class _ResultScreenState extends State<ResultScreen> {
                                                       ['image'][0],
                                                   height: double.infinity,
                                                   fit: BoxFit.cover,
+                                                  errorBuilder: (context, error,
+                                                      stackTrace) {
+                                                    return Container(
+                                                      color:
+                                                          grey.withOpacity(.1),
+                                                      child: Center(
+                                                        child: Icon(Icons
+                                                            .image_search_rounded),
+                                                      ),
+                                                    );
+                                                  },
                                                 ),
                                               ),
                                               Container(
@@ -418,6 +429,16 @@ class _ResultScreenState extends State<ResultScreen> {
                                           Image.network(
                                             snapshot.data!.docs[index]['image']
                                                 [0],
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                              return Container(
+                                                color: grey.withOpacity(.1),
+                                                child: Center(
+                                                  child: Icon(Icons
+                                                      .image_search_rounded),
+                                                ),
+                                              );
+                                            },
                                             width: double.infinity,
                                             height: double.infinity,
                                             fit: BoxFit.cover,

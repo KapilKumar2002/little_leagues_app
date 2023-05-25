@@ -88,18 +88,13 @@ class _ItemScreenState extends State<ItemScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Padding(
-          padding: const EdgeInsets.only(right: 60),
-          child: Text(
-            "${widget.title}".toUpperCase(),
-            style: TextStyle(
-              fontSize: 15,
-              overflow: TextOverflow.visible,
-            ),
-          ),
-        ),
+        title: Text.rich(TextSpan(
+          text: widget.title.toUpperCase(),
+          style: TextStyle(overflow: TextOverflow.visible, fontSize: 14),
+        )),
         elevation: 0,
         backgroundColor: white2,
+        titleSpacing: -15,
         leading: IconButton(
           onPressed: () {
             popBack(context);
@@ -141,6 +136,14 @@ class _ItemScreenState extends State<ItemScreen> {
                           height: 450,
                           fit: BoxFit.cover,
                           width: double.infinity,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: white.withOpacity(.6),
+                              child: Center(
+                                child: Icon(Icons.image_search_rounded),
+                              ),
+                            );
+                          },
                         ));
                       }
                       return Container(
@@ -372,6 +375,16 @@ class _ItemScreenState extends State<ItemScreen> {
                                     child: Image.network(
                                       snapshot.data!.docs[index]['leading'],
                                       fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return Container(
+                                          color: white.withOpacity(.6),
+                                          child: Center(
+                                            child: Icon(
+                                                Icons.image_search_rounded),
+                                          ),
+                                        );
+                                      },
                                     ),
                                   ),
                                   title: Text(
@@ -460,6 +473,17 @@ class _ItemScreenState extends State<ItemScreen> {
                                                     ['image'][0],
                                                 width: double.infinity,
                                                 height: double.infinity,
+                                                errorBuilder: (context, error,
+                                                    stackTrace) {
+                                                  return Container(
+                                                    color:
+                                                        grey.withOpacity(.08),
+                                                    child: Center(
+                                                      child: Icon(Icons
+                                                          .image_search_rounded),
+                                                    ),
+                                                  );
+                                                },
                                                 fit: BoxFit.cover,
                                               ),
                                               snapshot.data!.docs[index]
@@ -704,6 +728,16 @@ class _ItemScreenState extends State<ItemScreen> {
                                                 width: double.infinity,
                                                 height: double.infinity,
                                                 fit: BoxFit.cover,
+                                                errorBuilder: (context, error,
+                                                    stackTrace) {
+                                                  return Container(
+                                                    color: grey.withOpacity(.1),
+                                                    child: Center(
+                                                      child: Icon(Icons
+                                                          .image_search_rounded),
+                                                    ),
+                                                  );
+                                                },
                                               ),
                                               snapshot.data!.docs[index]
                                                           ['bestseller'] ==
@@ -946,6 +980,16 @@ class _ItemScreenState extends State<ItemScreen> {
                                                     ['image'][0],
                                                 width: double.infinity,
                                                 height: double.infinity,
+                                                errorBuilder: (context, error,
+                                                    stackTrace) {
+                                                  return Container(
+                                                    color: grey.withOpacity(.1),
+                                                    child: Center(
+                                                      child: Icon(Icons
+                                                          .image_search_rounded),
+                                                    ),
+                                                  );
+                                                },
                                                 fit: BoxFit.cover,
                                               ),
                                               snapshot.data!.docs[index]

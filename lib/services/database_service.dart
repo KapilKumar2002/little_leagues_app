@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:little_leagues/helper/helper_function.dart';
 import 'package:little_leagues/screens/bottomnav.dart';
 import 'package:little_leagues/screens/infoscreen.dart';
 import 'package:little_leagues/utils/constants.dart';
@@ -17,6 +16,8 @@ class DatabaseService {
       FirebaseFirestore.instance.collection("groups");
   final CollectionReference categoryCollection =
       FirebaseFirestore.instance.collection("category");
+  final CollectionReference classCollection =
+      FirebaseFirestore.instance.collection("classes");
 
   // saving the userdata
   Future savingUserData(String fullName, String email, String phone) async {
@@ -24,12 +25,18 @@ class DatabaseService {
       "fullName": fullName,
       "address": "",
       "DOB": "",
+      "city": "",
+      "state": "",
+      "zip_code": "",
+      "institution": "",
       "lastSignout": "",
       "email": email,
       "phone": "${phone}",
       "groups": [],
+      "events": [],
       "profilePic": "",
       "groupId": "",
+      "country": "",
     });
   }
 
@@ -130,46 +137,42 @@ class DatabaseService {
   // }
 
   // function -> bool
-  // Future<bool> isUserJoined(
-  //     String groupName, String groupId, String userName) async {
-  //   DocumentReference userDocumentReference = userCollection.doc(uid);
-  //   DocumentSnapshot documentSnapshot = await userDocumentReference.get();
+  Future<bool> isUserJoined(String eventId) async {
+    DocumentReference userDocumentReference = userCollection.doc(uid);
+    DocumentSnapshot documentSnapshot = await userDocumentReference.get();
 
-  //   List<dynamic> groups = await documentSnapshot['groups'];
-  //   if (groups.contains("${groupId}_$groupName")) {
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // }
+    List<dynamic> classes = await documentSnapshot['classes'];
+    if (classes.contains(eventId)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  getUserClasses() async {
+    return userCollection.doc(uid).snapshots();
+  }
 
   // toggling the group join/exit
-  // Future toggleGroupJoin(
-  //     String groupId, String userName, String groupName) async {
-  //   // doc reference
-  //   DocumentReference userDocumentReference = userCollection.doc(uid);
-  //   DocumentReference groupDocumentReference = groupCollection.doc(groupId);
+  Future toggleClassesJoined(String classId) async {
+    // doc reference
+    DocumentReference userDocumentReference = userCollection.doc(uid);
+    DocumentReference groupDocumentReference = classCollection.doc(classId);
 
-  //   DocumentSnapshot documentSnapshot = await userDocumentReference.get();
-  //   List<dynamic> groups = await documentSnapshot['groups'];
+    DocumentSnapshot documentSnapshot = await userDocumentReference.get();
+    List<dynamic> classes = await documentSnapshot['classes'];
 
-  //   // if user has our groups -> then remove then or also in other part re join
-  //   if (groups.contains("${groupId}_$groupName")) {
-  //     await userDocumentReference.update({
-  //       "groups": FieldValue.arrayRemove(["${groupId}_$groupName"])
-  //     });
-  //     await groupDocumentReference.update({
-  //       "members": FieldValue.arrayRemove(["${uid}_$userName"])
-  //     });
-  //   } else {
-  //     await userDocumentReference.update({
-  //       "groups": FieldValue.arrayUnion(["${groupId}_$groupName"])
-  //     });
-  //     await groupDocumentReference.update({
-  //       "members": FieldValue.arrayUnion(["${uid}_$userName"])
-  //     });
-  //   }
-  // }
+    // if user has our groups -> then remove then or also in other part re join
+    if (classes.contains(classId)) {
+      await userDocumentReference.update({
+        "classes": FieldValue.arrayRemove([classId])
+      });
+    } else {
+      await userDocumentReference.update({
+        "classes": FieldValue.arrayUnion([classId])
+      });
+    }
+  }
 
   getUserDataField(BuildContext context, {int? num}) async {
     try {

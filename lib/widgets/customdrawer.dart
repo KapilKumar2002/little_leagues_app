@@ -40,11 +40,10 @@ class _CustomDrawerState extends State<CustomDrawer> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // width: width(context) * .85,
       height: height(context),
       child: Stack(children: [
         Container(
-          width: width(context) * .7,
+          width: 250,
           height: height(context),
           color: primaryColor,
         ),
@@ -55,33 +54,36 @@ class _CustomDrawerState extends State<CustomDrawer> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        fullName.toString(),
-                        style: text14w700(black),
-                      ),
-                      Text(
-                        phoneNumber.toString(),
-                        style: text14w500(black),
-                      ),
-                      Text(
-                        email.toString(),
-                        style: text14w500(black),
-                      ),
-                    ],
+                Container(
+                  width: 200,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 25),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          fullName.toString(),
+                          style: text14w500(black),
+                        ),
+                        Text(
+                          phoneNumber.toString(),
+                          style: text12w500(black),
+                        ),
+                        Text(
+                          email.toString(),
+                          style: text12w400(black),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 CircleAvatar(
-                  radius: width(context) * .16,
+                  radius: 52,
                   backgroundColor: primaryColor,
                   child: CircleAvatar(
-                    radius: width(context) * .15,
+                    radius: 50,
                     backgroundColor: transparentColor,
                     backgroundImage: AssetImage("assets/pim.jpg"),
                   ),

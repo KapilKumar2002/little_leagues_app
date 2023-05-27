@@ -14,6 +14,12 @@ class RegisteredEvents extends StatefulWidget {
 
 class _RegisteredEventsState extends State<RegisteredEvents>
     with TickerProviderStateMixin {
+  // String date = DateFormat.yMd().format(DateTime.now());
+  // String? d;
+  // int toDateNumber = 0;
+  DateTime date = DateTime.now();
+
+  String? selectedDate;
   String day = DateFormat.E().format(DateTime.now());
   Stream? stream;
   final user = FirebaseAuth.instance.currentUser;
@@ -28,11 +34,19 @@ class _RegisteredEventsState extends State<RegisteredEvents>
     });
   }
 
-  String? selectedDate;
+  int dateNumber(DateTime date) {
+    String month = date.month.toString();
+    String day = date.day.toString();
+    String year = date.year.toString();
+    if (day.length == 1) {
+      day = "0" + day;
+    }
+    int finalDate = int.parse(month + day + year);
+    return finalDate;
+  }
 
   @override
   void initState() {
-    // TODO: implement initState
     getRegisteredEvents();
     super.initState();
   }
@@ -74,7 +88,9 @@ class _RegisteredEventsState extends State<RegisteredEvents>
               onDatePressed: (DateTime datetime) {
                 selectedDate = DateFormat.yMd().format(datetime);
                 // Do something
-
+                setState(() {
+                  date = datetime;
+                });
                 setState(() {
                   day = DateFormat.E().format(datetime);
                 });
@@ -127,98 +143,111 @@ class _RegisteredEventsState extends State<RegisteredEvents>
                     physics: NeverScrollableScrollPhysics(),
                     scrollDirection: Axis.vertical,
                     itemBuilder: (context, index) {
-                      return snapshot.data.docs[index]['class_days']
-                              .contains(day)
-                          ? Container(
-                              padding: EdgeInsets.all(15),
-                              decoration: BoxDecoration(
-                                  boxShadow: [
-                                    BoxShadow(color: white2, blurRadius: 1)
-                                  ],
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: backgroundColor),
-                              margin: EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 7),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    decoration: BoxDecoration(
-                                        color: backgroundColor,
-                                        borderRadius: BorderRadius.circular(12),
-                                        boxShadow: [
-                                          BoxShadow(
-                                              color: white2, blurRadius: 1)
-                                        ]),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: Container(
-                                        width: 75,
-                                        height: 75,
-                                        child: Image.network(
-                                          snapshot.data.docs[index]
-                                              ['class_image'],
-                                          fit: BoxFit.fill,
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
-                                            return Container(
-                                              color: white.withOpacity(.6),
-                                              child: Center(
-                                                child: Icon(
-                                                    Icons.image_search_rounded),
-                                              ),
-                                            );
-                                          },
+                      return dateNumber(snapshot
+                                      .data.docs[index]['next_pay_date']
+                                      .toDate()) >=
+                                  dateNumber(date) &&
+                              dateNumber(snapshot.data.docs[index]['start_date']
+                                      .toDate()) <=
+                                  dateNumber(date)
+                          ? snapshot.data.docs[index]['class_days']
+                                  .contains(day)
+                              ? Container(
+                                  padding: EdgeInsets.all(15),
+                                  decoration: BoxDecoration(
+                                      boxShadow: [
+                                        BoxShadow(color: white2, blurRadius: 1)
+                                      ],
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: backgroundColor),
+                                  margin: EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 7),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        decoration: BoxDecoration(
+                                            color: backgroundColor,
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                  color: white2, blurRadius: 1)
+                                            ]),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          child: Container(
+                                            width: 75,
+                                            height: 75,
+                                            child: Image.network(
+                                              snapshot.data.docs[index]
+                                                  ['class_image'],
+                                              fit: BoxFit.fill,
+                                              errorBuilder:
+                                                  (context, error, stackTrace) {
+                                                return Container(
+                                                  color: white.withOpacity(.6),
+                                                  child: Center(
+                                                    child: Icon(Icons
+                                                        .image_search_rounded),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ),
-                                  horizontalSpace(15),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          snapshot.data.docs[index]
-                                              ['class_name'],
-                                          style: text15w500(white2),
-                                        ),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+                                      horizontalSpace(15),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              "Start time",
-                                              style: text14w500(white2),
-                                            ),
-                                            Text(
                                               snapshot.data.docs[index]
-                                                  ['start_time'],
-                                              style: text12w400(white),
-                                            )
+                                                  ['class_name'],
+                                              style: text15w500(white2),
+                                            ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text(
+                                                  "Start time",
+                                                  style: text14w500(white2),
+                                                ),
+                                                Text(
+                                                  snapshot.data.docs[index]
+                                                      ['start_time'],
+                                                  style: text12w400(white),
+                                                )
+                                              ],
+                                            ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text(
+                                                  "End time",
+                                                  style: text14w500(white2),
+                                                ),
+                                                Text(
+                                                  snapshot.data.docs[index]
+                                                      ['end_time'],
+                                                  style: text12w400(white),
+                                                )
+                                              ],
+                                            ),
                                           ],
                                         ),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              "End time",
-                                              style: text14w500(white2),
-                                            ),
-                                            Text(
-                                              snapshot.data.docs[index]
-                                                  ['end_time'],
-                                              style: text12w400(white),
-                                            )
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                ],
-                              ))
+                                      )
+                                    ],
+                                  ))
+                              : horizontalSpace(0)
                           : horizontalSpace(0);
                     },
                   )

@@ -28,18 +28,6 @@ class NotificationPage extends StatelessWidget {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 20),
-            child: InkWell(
-              onTap: () {
-                // globalKey.currentState!.openDrawer();
-              },
-              child: Image.asset(
-                "assets/menu.png",
-                width: 28,
-              ),
-            ),
-          )
         ],
       ),
       body: Container(

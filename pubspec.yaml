@@ -52,13 +52,13 @@ dependencies:
   flutter_pw_validator: ^1.5.0
   form_field_validator: ^1.1.0
   email_otp: ^2.0.1
-  geolocator: ^9.0.2
-  geocoding: ^2.1.0
   image_picker: ^0.8.7+4
   uuid: ^3.0.7
   firebase_storage: ^11.1.2
   flutter_number_picker: ^1.0.4
   csc_picker: ^0.2.7
+  upi_india: ^3.0.1
+  connectivity_plus: ^2.1.0
 
  
   

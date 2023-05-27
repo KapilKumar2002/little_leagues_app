@@ -7,7 +7,6 @@ import 'package:little_leagues/screens/messages.dart';
 import 'package:little_leagues/screens/notification.dart';
 import 'package:little_leagues/screens/reports.dart';
 import 'package:little_leagues/screens/shop/shop.dart';
-import 'package:little_leagues/services/database_service.dart';
 import 'package:little_leagues/utils/constants.dart';
 import 'package:little_leagues/widgets/customdrawer.dart';
 
@@ -91,7 +90,7 @@ class _BottomNavState extends State<BottomNav> {
                       ? "Calendar"
                       : index == 3
                           ? "Message"
-                          : "Notification",
+                          : "Report",
           style: text25Bold(white),
         ),
         actions: [

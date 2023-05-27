@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_week/flutter_calendar_week.dart';
+import 'package:little_leagues/screens/payment/paymentpage.dart';
 import 'package:little_leagues/utils/constants.dart';
 import 'package:intl/intl.dart';
 
@@ -19,28 +20,6 @@ class _OtherEventsState extends State<OtherEvents>
   QuerySnapshot? snap;
   final user = FirebaseAuth.instance.currentUser;
   List<String> enrolledClass = [];
-
-  joinClass(String id) async {
-    final event =
-        await FirebaseFirestore.instance.collection("classes").doc(id).get();
-    final data = event.data() as Map<String, dynamic>;
-    await FirebaseFirestore.instance
-        .collection("users")
-        .doc(user!.uid)
-        .collection("enrolled_classes")
-        .doc(id)
-        .set({
-      "class_days": data['class_days'],
-      "class_id": data['class_id'],
-      "class_image": data['class_image'],
-      "class_name": data['class_name'],
-      "end_time": data['end_time'],
-      "start_time": data['start_time'],
-      "next_pay_date": DateFormat.yMd()
-          .format(DateTime.now().add(Duration(days: 30)))
-          .toString()
-    });
-  }
 
   getEnrolledClasses() async {
     enrolledClass = [];
@@ -263,12 +242,54 @@ class _OtherEventsState extends State<OtherEvents>
                                                 )
                                               ],
                                             ),
+                                            Text(
+                                              "Class Days",
+                                              style: text14w400(primaryColor),
+                                            ),
+                                            verticalSpace(4),
+                                            Container(
+                                              height: 20,
+                                              child: ListView.separated(
+                                                  scrollDirection:
+                                                      Axis.horizontal,
+                                                  itemBuilder: (context, i) {
+                                                    return Container(
+                                                      decoration: BoxDecoration(
+                                                          color: primaryColor,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(4)),
+                                                      padding:
+                                                          EdgeInsets.all(4),
+                                                      child: Text(
+                                                        snapshot.data
+                                                                .docs[index]
+                                                            ['class_days'][i],
+                                                        style:
+                                                            text10w800(black),
+                                                      ),
+                                                    );
+                                                  },
+                                                  separatorBuilder:
+                                                      (context, index) {
+                                                    return horizontalSpace(10);
+                                                  },
+                                                  itemCount: snapshot
+                                                      .data
+                                                      .docs[index]['class_days']
+                                                      .length),
+                                            ),
                                             InkWell(
                                               onTap: () {
-                                                joinClass(snapshot.data
-                                                    .docs[index]['class_id']);
-
-                                                getEnrolledClasses();
+                                                NextScreen(
+                                                    context,
+                                                    PaymentPage(
+                                                        sportName: snapshot.data
+                                                                .docs[index]
+                                                            ['class_name'],
+                                                        sportId: snapshot.data
+                                                                .docs[index]
+                                                            ['class_id']));
                                               },
                                               child: Container(
                                                 margin:

@@ -38,9 +38,17 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
                   ]),
                   height: height(context) * .5,
                   width: width(context),
-                  child: Image.asset(
-                    "assets/onboard.png",
+                  child: Image.network(
+                    "https://firebasestorage.googleapis.com/v0/b/littleleagues.appspot.com/o/onboard.png?alt=media&token=9a2c19b4-46b0-4721-a840-048b2ccd2252",
                     fit: BoxFit.fill,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: white.withOpacity(.6),
+                        child: Center(
+                          child: Icon(Icons.image_search_rounded),
+                        ),
+                      );
+                    },
                   )),
               SizedBox(
                 height: 20,

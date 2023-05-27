@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 Color primaryColor = Color(0xFFDDFE52);
@@ -171,4 +172,9 @@ void popBack(context) {
 void nextScreenReplace(context, page) {
   Navigator.pushReplacement(
       context, MaterialPageRoute(builder: (context) => page));
+}
+
+@override
+DateTime fromJson(Timestamp timestamp) {
+  return timestamp.toDate();
 }

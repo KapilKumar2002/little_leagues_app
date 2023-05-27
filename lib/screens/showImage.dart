@@ -20,13 +20,17 @@ class _ShowImageScreenState extends State<ShowImageScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        foregroundColor: white2,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(widget.sender),
+            Text(
+              widget.sender,
+              style: text15w500(white2),
+            ),
             Text(
               widget.time,
-              style: text10w400(black),
+              style: text10w400(white2),
             )
           ],
         ),
@@ -37,7 +41,7 @@ class _ShowImageScreenState extends State<ShowImageScreen> {
       body: SingleChildScrollView(
         child: Container(
           color: black.withOpacity(.5),
-          height: height(context),
+          height: height(context) - 80,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -45,9 +49,10 @@ class _ShowImageScreenState extends State<ShowImageScreen> {
                 child: Hero(
                   tag: widget.image,
                   child: Container(
-                    margin: EdgeInsets.all(25),
+                    margin: EdgeInsets.all(20),
                     child: Image.network(
                       widget.image,
+                      fit: BoxFit.fill,
                     ),
                   ),
                 ),

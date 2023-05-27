@@ -159,11 +159,6 @@ class _MessagePageState extends State<MessagePage> {
     );
   }
 
-  @override
-  DateTime fromJson(Timestamp timestamp) {
-    return timestamp.toDate();
-  }
-
   chatMessages() {
     return StreamBuilder(
       stream: chats,

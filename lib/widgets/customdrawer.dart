@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:little_leagues/screens/auth/signin.dart';
 import 'package:little_leagues/screens/infoscreen.dart';
+import 'package:little_leagues/screens/payment/paymenthistory.dart';
 import 'package:little_leagues/services/auth_service.dart';
 import 'package:little_leagues/utils/constants.dart';
 
@@ -110,6 +111,9 @@ class _CustomDrawerState extends State<CustomDrawer> {
                     title: Text("My Info & Settings"),
                   ),
                   ListTile(
+                    onTap: () {
+                      NextScreen(context, PaymentHistory());
+                    },
                     leading: Icon(
                       Icons.payment,
                       color: black,

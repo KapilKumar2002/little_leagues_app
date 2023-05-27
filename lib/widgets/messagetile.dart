@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:little_leagues/screens/showImage.dart';
 import 'package:little_leagues/utils/constants.dart';
@@ -37,7 +36,7 @@ class _MessageTileState extends State<MessageTile> {
         margin: widget.sentByMe
             ? const EdgeInsets.only(left: 30, bottom: 2)
             : const EdgeInsets.only(right: 30, bottom: 2),
-        padding: const EdgeInsets.only(top: 5, left: 12, right: 12, bottom: 5),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
@@ -57,7 +56,7 @@ class _MessageTileState extends State<MessageTile> {
                     topRight: Radius.circular(20),
                     bottomRight: Radius.circular(20),
                   ),
-            color: widget.sentByMe ? primaryColor : Colors.grey[700]),
+            color: widget.sentByMe ? black : Colors.grey[700]),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisSize: MainAxisSize.min,
@@ -71,9 +70,9 @@ class _MessageTileState extends State<MessageTile> {
                       : widget.sender.toUpperCase(),
                   textAlign: TextAlign.start,
                   style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 10,
                       fontWeight: FontWeight.bold,
-                      color: widget.sentByMe ? black : white2,
+                      color: widget.sentByMe ? white2 : white2,
                       letterSpacing: -0.5),
                 ),
                 const SizedBox(
@@ -84,7 +83,7 @@ class _MessageTileState extends State<MessageTile> {
                         textAlign: TextAlign.start,
                         style: TextStyle(
                             fontSize: 16,
-                            color: widget.sentByMe ? black : white2))
+                            color: widget.sentByMe ? white2 : white2))
                     : InkWell(
                         onTap: () {
                           NextScreen(
@@ -108,10 +107,10 @@ class _MessageTileState extends State<MessageTile> {
                       ),
               ],
             ),
-            horizontalSpace(8),
+            horizontalSpace(4),
             Text(
               DateFormat.Hm().format(widget.time).toString(),
-              style: text10w400(widget.sentByMe ? black : white2),
+              style: text8w400(widget.sentByMe ? white2 : white2),
             ),
           ],
         ),

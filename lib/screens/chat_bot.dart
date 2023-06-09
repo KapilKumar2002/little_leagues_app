@@ -35,11 +35,11 @@ class _ChatPageState extends State<ChatPage> {
         chats = val;
       });
     });
-    DatabaseService().getGroupAdmin(widget.groupId).then((val) {
-      setState(() {
-        admin = val;
-      });
-    });
+    // DatabaseService().getGroupAdmin(widget.groupId).then((val) {
+    //   setState(() {
+    //     admin = val;
+    //   });
+    // });
   }
 
   @override

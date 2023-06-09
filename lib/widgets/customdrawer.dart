@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:little_leagues/screens/auth/signin.dart';
 import 'package:little_leagues/screens/infoscreen.dart';
 import 'package:little_leagues/screens/payment/paymenthistory.dart';
+import 'package:little_leagues/screens/shop/yourcart.dart';
 import 'package:little_leagues/services/auth_service.dart';
 import 'package:little_leagues/utils/constants.dart';
 
 class CustomDrawer extends StatefulWidget {
-  const CustomDrawer({super.key});
+  final String? id;
+  const CustomDrawer({super.key, required this.id});
 
   @override
   State<CustomDrawer> createState() => _CustomDrawerState();
@@ -19,14 +21,14 @@ class _CustomDrawerState extends State<CustomDrawer> {
   String? phoneNumber;
   String? email;
   getUserDetails() async {
-    final user = FirebaseAuth.instance.currentUser;
+    // final user = FirebaseAuth.instance.currentUser;
     final userCollection = await FirebaseFirestore.instance
         .collection("users")
-        .doc(user!.uid)
+        .doc(widget.id)
         .get();
     final data = userCollection.data() as Map<String, dynamic>;
     fullName = data['fullName'];
-    phoneNumber = data['phone'];
+    phoneNumber = data['phone'].toString();
     email = data['email'];
     setState(() {});
   }
@@ -65,15 +67,15 @@ class _CustomDrawerState extends State<CustomDrawer> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          fullName.toString(),
+                          fullName ?? "",
                           style: text14w500(black),
                         ),
                         Text(
-                          phoneNumber.toString(),
+                          phoneNumber ?? "",
                           style: text12w500(black),
                         ),
                         Text(
-                          email.toString(),
+                          email ?? "",
                           style: text12w400(black),
                         ),
                       ],
@@ -102,7 +104,11 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 children: [
                   ListTile(
                     onTap: () {
-                      NextScreen(context, InfoScreen());
+                      NextScreen(
+                          context,
+                          InfoScreen(
+                            id: widget.id,
+                          ));
                     },
                     leading: Icon(
                       Icons.settings,
@@ -112,7 +118,11 @@ class _CustomDrawerState extends State<CustomDrawer> {
                   ),
                   ListTile(
                     onTap: () {
-                      NextScreen(context, PaymentHistory());
+                      NextScreen(
+                          context,
+                          PaymentHistory(
+                            id: widget.id,
+                          ));
                     },
                     leading: Icon(
                       Icons.payment,
@@ -122,10 +132,24 @@ class _CustomDrawerState extends State<CustomDrawer> {
                   ),
                   ListTile(
                     leading: Icon(
-                      Icons.shopping_cart,
+                      Icons.shopping_bag_rounded,
                       color: black,
                     ),
                     title: Text("Order History"),
+                  ),
+                  ListTile(
+                    onTap: () {
+                      NextScreen(
+                          context,
+                          YourCart(
+                            id: widget.id,
+                          ));
+                    },
+                    leading: Icon(
+                      Icons.shopping_cart,
+                      color: black,
+                    ),
+                    title: Text("My Cart"),
                   ),
                 ],
               ),

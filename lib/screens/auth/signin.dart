@@ -26,6 +26,7 @@ class _SignInState extends State<SignIn> {
   final formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   AuthService authService = AuthService();
+  final user = FirebaseAuth.instance.currentUser;
 
   login() async {
     if (formKey.currentState!.validate()) {
@@ -44,7 +45,11 @@ class _SignInState extends State<SignIn> {
           await HelperFunctions.saveUserLoggedInStatus(true);
           await HelperFunctions.saveUserEmailSF(emailController.text);
           await HelperFunctions.saveUserNameSF(snapshot.docs[0]['fullName']);
-          nextScreenReplace(context, BottomNav());
+          nextScreenReplace(
+              context,
+              BottomNav(
+                id: user!.uid,
+              ));
         } else {
           openSnackbar(
             context,

@@ -3,11 +3,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_week/flutter_calendar_week.dart';
 import 'package:little_leagues/screens/payment/paymentpage.dart';
+import 'package:little_leagues/services/database_service.dart';
 import 'package:little_leagues/utils/constants.dart';
 import 'package:intl/intl.dart';
 
 class OtherEvents extends StatefulWidget {
-  const OtherEvents({super.key});
+  final String? id;
+  final String institution;
+  const OtherEvents({super.key, this.id, required this.institution});
 
   @override
   State<OtherEvents> createState() => _OtherEventsState();
@@ -18,28 +21,27 @@ class _OtherEventsState extends State<OtherEvents>
   String day = DateFormat.E().format(DateTime.now());
   Stream? stream;
   QuerySnapshot? snap;
-  final user = FirebaseAuth.instance.currentUser;
+  // final user = FirebaseAuth.instance.currentUser;
   List<String> enrolledClass = [];
+  final CalendarWeekController _controller = CalendarWeekController();
+  DateTime dateTime = DateTime.now();
 
-  getEnrolledClasses() async {
+  getEnrolledClasses() {
     enrolledClass = [];
-    final enroll = await FirebaseFirestore.instance
-        .collection("users")
-        .doc(user!.uid)
-        .collection("enrolled_classes")
-        .get();
-    if (mounted) {
-      setState(() {
-        snap = enroll;
-      });
-    }
+    DatabaseService(uid: widget.id).getSnap().then((value) {
+      if (mounted) {
+        setState(() {
+          snap = value;
+        });
+      }
+    });
   }
 
-  getClasses() async {
-    final data =
-        await FirebaseFirestore.instance.collection("classes").snapshots();
-    setState(() {
-      stream = data;
+  getClasses() {
+    DatabaseService().getClasses(widget.institution).then((value) {
+      setState(() {
+        stream = value;
+      });
     });
   }
 
@@ -51,9 +53,6 @@ class _OtherEventsState extends State<OtherEvents>
     super.initState();
   }
 
-  final CalendarWeekController _controller = CalendarWeekController();
-
-  DateTime dateTime = DateTime.now();
   @override
   Widget build(BuildContext context) {
     TabController tabController = TabController(length: 6, vsync: this);
@@ -87,18 +86,12 @@ class _OtherEventsState extends State<OtherEvents>
                 Duration(days: 365),
               ),
               onDatePressed: (DateTime datetime) {
-                // Do something
-
                 setState(() {
                   day = DateFormat.E().format(datetime);
                 });
               },
-              onDateLongPressed: (DateTime datetime) {
-                // Do something
-              },
-              onWeekChanged: () {
-                // Do something
-              },
+              onDateLongPressed: (DateTime datetime) {},
+              onWeekChanged: () {},
               monthViewBuilder: (DateTime time) => Align(
                 alignment: FractionalOffset.center,
                 child: Container(
@@ -137,7 +130,7 @@ class _OtherEventsState extends State<OtherEvents>
             getEnrolledClasses();
             if (snap != null) {
               for (int i = 0; i < snap!.docs.length; i++) {
-                enrolledClass.add(snap!.docs[i]['class_id']);
+                enrolledClass.add(snap!.docs[i].id);
               }
             }
             return snapshot.hasData
@@ -147,11 +140,11 @@ class _OtherEventsState extends State<OtherEvents>
                     physics: NeverScrollableScrollPhysics(),
                     scrollDirection: Axis.vertical,
                     itemBuilder: (context, index) {
-                      return enrolledClass
-                              .contains(snapshot.data.docs[index]['class_id'])
+                      var id = snapshot.data.docs[index]["class_id"];
+                      var days = snapshot.data.docs[index]['class_days'];
+                      return enrolledClass.contains(id)
                           ? horizontalSpace(0)
-                          : snapshot.data.docs[index]['class_days']
-                                  .contains(day)
+                          : days.contains(day)
                               ? Container(
                                   padding: EdgeInsets.all(15),
                                   decoration: BoxDecoration(
@@ -281,15 +274,19 @@ class _OtherEventsState extends State<OtherEvents>
                                             ),
                                             InkWell(
                                               onTap: () {
-                                                NextScreen(
-                                                    context,
-                                                    PaymentPage(
-                                                        sportName: snapshot.data
-                                                                .docs[index]
-                                                            ['class_name'],
-                                                        sportId: snapshot.data
-                                                                .docs[index]
-                                                            ['class_id']));
+                                                // NextScreen(
+                                                //     context,
+                                                //     PaymentPage(
+                                                //         sportName: snapshot.data
+                                                //                 .docs[index]
+                                                //             ['class_name'],
+                                                //         sportId: snapshot.data
+                                                //                 .docs[index]
+                                                //             ['class_id']));
+
+                                                DatabaseService(uid: widget.id)
+                                                    .joinClass(snapshot
+                                                        .data.docs[index].id);
                                               },
                                               child: Container(
                                                 margin:

@@ -11,8 +11,9 @@ import 'package:little_leagues/utils/constants.dart';
 import 'package:little_leagues/widgets/customdrawer.dart';
 
 class BottomNav extends StatefulWidget {
+  final String? id;
   final int? ind;
-  const BottomNav({super.key, this.ind});
+  const BottomNav({super.key, this.ind, this.id});
 
   @override
   State<BottomNav> createState() => _BottomNavState();
@@ -20,29 +21,48 @@ class BottomNav extends StatefulWidget {
 
 class _BottomNavState extends State<BottomNav> {
   int index = 0;
-
+  String institution = "";
   final GlobalKey<ScaffoldState> globalKey = GlobalKey();
-  final user = FirebaseAuth.instance.currentUser;
+  // final user = FirebaseAuth.instance.currentUser;
 
   String groupId = "";
   String fullName = "";
 
+  // giveId() async {
+  //   // print(user!.uid);
+  //   if (user != null) {
+  //     final userCollection = await FirebaseFirestore.instance
+  //         .collection("users")
+  //         .doc(user!.uid)
+  //         .get();
+  //     final data = userCollection.data() as Map<String, dynamic>;
+
+  //     setState(() {
+  //       fullName = data['fullName'];
+  //     });
+
+  //     setState(() {
+  //       groupId = data['groupId'];
+  //     });
+
+  //     // print(groupId);
+  //   }
+  // }
   giveId() async {
     // print(user!.uid);
-    if (user != null) {
+    if (widget.id != null) {
       final userCollection = await FirebaseFirestore.instance
           .collection("users")
-          .doc(user!.uid)
+          .doc(widget.id)
           .get();
       final data = userCollection.data() as Map<String, dynamic>;
+      print(data);
 
-      setState(() {
-        fullName = data['fullName'];
-      });
+      fullName = data['fullName'];
 
-      setState(() {
-        groupId = data['groupId'];
-      });
+      groupId = data['groupId'];
+      institution = data['institution'];
+      setState(() {});
 
       // print(groupId);
     }
@@ -62,9 +82,12 @@ class _BottomNavState extends State<BottomNav> {
   @override
   Widget build(BuildContext context) {
     List bodyWidgets = [
-      DashboardPage(fullName),
+      DashboardPage(fullName, widget.id.toString()),
       ShopPage(),
-      CalendarPage(),
+      CalendarPage(
+        id: widget.id.toString(),
+        institution: institution,
+      ),
       MessagePage(
           height: height(context) - 225,
           groupId: groupId,
@@ -74,7 +97,9 @@ class _BottomNavState extends State<BottomNav> {
       ReportsPage()
     ];
     return Scaffold(
-      drawer: CustomDrawer(),
+      drawer: CustomDrawer(
+        id: widget.id,
+      ),
       key: globalKey,
       appBar: AppBar(
         foregroundColor: white,

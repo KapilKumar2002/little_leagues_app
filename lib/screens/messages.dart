@@ -93,11 +93,11 @@ class _MessagePageState extends State<MessagePage> {
         chats = val;
       });
     });
-    DatabaseService().getGroupAdmin(widget.groupId).then((val) {
-      setState(() {
-        admin = val;
-      });
-    });
+    // DatabaseService().getGroupAdmin(widget.groupId).then((val) {
+    //   setState(() {
+    //     admin = val;
+    //   });
+    // });
   }
 
   @override

@@ -22,6 +22,7 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+  final user = FirebaseAuth.instance.currentUser;
   TextEditingController nameController = new TextEditingController();
   TextEditingController phoneController = new TextEditingController();
   TextEditingController emailController = new TextEditingController();
@@ -121,7 +122,11 @@ class _SignUpState extends State<SignUp> {
 
   handleAfterSignIn() {
     Future.delayed(const Duration(milliseconds: 1000)).then((value) {
-      nextScreenReplace(context, const BottomNav());
+      nextScreenReplace(
+          context,
+          BottomNav(
+            id: user!.uid,
+          ));
     });
   }
 

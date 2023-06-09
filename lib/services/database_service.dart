@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:little_leagues/screens/bottomnav.dart';
 import 'package:little_leagues/screens/infoscreen.dart';
 import 'package:little_leagues/utils/constants.dart';
 import 'package:little_leagues/widgets/showsnackbar.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 class DatabaseService {
   final String? uid;
@@ -32,11 +34,12 @@ class DatabaseService {
       "lastSignout": "",
       "email": email,
       "phone": "${phone}",
-      "groups": [],
-      "events": [],
       "profilePic": "",
       "groupId": "",
+      "uid": "",
       "country": "",
+      "parentName": "",
+      "alternatePhone": ""
     });
   }
 
@@ -120,11 +123,11 @@ class DatabaseService {
     return await groupCollection.orderBy("recentMessageTime").snapshots();
   }
 
-  Future getGroupAdmin(String groupId) async {
-    DocumentReference d = groupCollection.doc(groupId);
-    DocumentSnapshot documentSnapshot = await d.get();
-    return documentSnapshot['admin'];
-  }
+  // Future getGroupAdmin(String groupId) async {
+  //   DocumentReference d = groupCollection.doc(groupId);
+  //   DocumentSnapshot documentSnapshot = await d.get();
+  //   return documentSnapshot['admin'];
+  // }
 
   // get group members
   // getGroupMembers(groupId) async {
@@ -137,42 +140,42 @@ class DatabaseService {
   // }
 
   // function -> bool
-  Future<bool> isUserJoined(String eventId) async {
-    DocumentReference userDocumentReference = userCollection.doc(uid);
-    DocumentSnapshot documentSnapshot = await userDocumentReference.get();
+  // Future<bool> isUserJoined(String eventId) async {
+  //   DocumentReference userDocumentReference = userCollection.doc(uid);
+  //   DocumentSnapshot documentSnapshot = await userDocumentReference.get();
 
-    List<dynamic> classes = await documentSnapshot['classes'];
-    if (classes.contains(eventId)) {
-      return true;
-    } else {
-      return false;
-    }
-  }
+  //   List<dynamic> classes = await documentSnapshot['classes'];
+  //   if (classes.contains(eventId)) {
+  //     return true;
+  //   } else {
+  //     return false;
+  //   }
+  // }
 
-  getUserClasses() async {
-    return userCollection.doc(uid).snapshots();
-  }
+  // getUserClasses() async {
+  //   return userCollection.doc(uid).snapshots();
+  // }
 
-  // toggling the group join/exit
-  Future toggleClassesJoined(String classId) async {
-    // doc reference
-    DocumentReference userDocumentReference = userCollection.doc(uid);
-    DocumentReference groupDocumentReference = classCollection.doc(classId);
+  // // toggling the group join/exit
+  // Future toggleClassesJoined(String classId) async {
+  //   // doc reference
+  //   DocumentReference userDocumentReference = userCollection.doc(uid);
+  //   DocumentReference groupDocumentReference = classCollection.doc(classId);
 
-    DocumentSnapshot documentSnapshot = await userDocumentReference.get();
-    List<dynamic> classes = await documentSnapshot['classes'];
+  //   DocumentSnapshot documentSnapshot = await userDocumentReference.get();
+  //   List<dynamic> classes = await documentSnapshot['classes'];
 
-    // if user has our groups -> then remove then or also in other part re join
-    if (classes.contains(classId)) {
-      await userDocumentReference.update({
-        "classes": FieldValue.arrayRemove([classId])
-      });
-    } else {
-      await userDocumentReference.update({
-        "classes": FieldValue.arrayUnion([classId])
-      });
-    }
-  }
+  //   // if user has our groups -> then remove then or also in other part re join
+  //   if (classes.contains(classId)) {
+  //     await userDocumentReference.update({
+  //       "classes": FieldValue.arrayRemove([classId])
+  //     });
+  //   } else {
+  //     await userDocumentReference.update({
+  //       "classes": FieldValue.arrayUnion([classId])
+  //     });
+  //   }
+  // }
 
   getUserDataField(BuildContext context, {int? num}) async {
     try {
@@ -186,6 +189,7 @@ class DatabaseService {
             ));
       }
       {
+        final user = FirebaseAuth.instance.currentUser;
         final data = userDetails as Map<String, dynamic>;
         if (data['fullName'] == "" ||
             data['email'] == "" ||
@@ -195,10 +199,15 @@ class DatabaseService {
           NextScreen(
               context,
               InfoScreen(
+                id: user!.uid,
                 phone: num,
               ));
         } else {
-          NextScreen(context, BottomNav());
+          NextScreen(
+              context,
+              BottomNav(
+                id: user!.uid,
+              ));
           openSnackbar(context, "Logged In", primaryColor);
         }
       }
@@ -230,5 +239,76 @@ class DatabaseService {
       print("NEW USER");
       return false;
     }
+  }
+
+  addClassToCart(String itemId) async {
+    final item = await FirebaseFirestore.instance
+        .collection("sport_classes")
+        .doc(itemId)
+        .get();
+    final dataMap = item.data() as Map<String, dynamic>;
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(uid)
+        .collection("cart")
+        .doc(itemId)
+        .set({
+      "class_image": dataMap['class_image'],
+      "price": dataMap['price'],
+      "class_name": dataMap['class_name'],
+      "pid": itemId,
+      "previous price": 399,
+      "item": "class",
+      "isSelected": true
+    });
+    // "previous price": dataMap['previous price'],
+  }
+
+  joinClass(String sid) async {
+    final event = await FirebaseFirestore.instance
+        .collection("sport_classes")
+        .doc(sid)
+        .get();
+    final data = event.data() as Map<String, dynamic>;
+
+    await FirebaseFirestore.instance
+        .collection("users")
+        .doc(uid)
+        .collection("enrolled_classes")
+        .doc(sid)
+        .set({
+      "class_days": data['class_days'],
+      "class_desc": data['class_desc'],
+      "class_id": data['class_id'],
+      "class_image": data['class_image'],
+      "class_name": data['class_name'],
+      "end_time": data['end_time'],
+      "start_time": data['start_time'],
+      "start_date": DateTime.now(),
+      "next_pay_date": DateTime.now().add(Duration(days: 30))
+    });
+  }
+
+  getRegClasses() async {
+    return await FirebaseFirestore.instance
+        .collection("users")
+        .doc(uid)
+        .collection("enrolled_classes")
+        .snapshots();
+  }
+
+  getSnap() async {
+    return await FirebaseFirestore.instance
+        .collection("users")
+        .doc(uid)
+        .collection("enrolled_classes")
+        .get();
+  }
+
+  getClasses(String institution) async {
+    return await FirebaseFirestore.instance
+        .collection("sport_classes")
+        .where("institution", isEqualTo: institution)
+        .snapshots();
   }
 }

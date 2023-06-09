@@ -12,14 +12,16 @@ import 'package:intl/intl.dart';
 import 'package:little_leagues/widgets/showsnackbar.dart';
 
 class InfoScreen extends StatefulWidget {
+  final String? id;
   final int? phone;
-  const InfoScreen({super.key, this.phone});
+  const InfoScreen({super.key, this.phone, this.id});
 
   @override
   State<InfoScreen> createState() => _InfoScreenState();
 }
 
 class _InfoScreenState extends State<InfoScreen> {
+  final user = FirebaseAuth.instance.currentUser;
   static const List<String> institute = <String>[
     "Krishna",
     "Green Land",
@@ -47,72 +49,80 @@ class _InfoScreenState extends State<InfoScreen> {
 
   final CollectionReference userCollection =
       FirebaseFirestore.instance.collection("users");
-  final user = FirebaseAuth.instance.currentUser;
+  // final user = FirebaseAuth.instance.currentUser;
 
   updateUserDate(BuildContext context) async {
     try {
-      if (institute != null &&
-          city != null &&
-          state != null &&
-          country != null) {
-        await userCollection.doc(user!.uid).update({
-          "fullName": nameController.text,
-          "phone": "+91${phoneController.text}",
-          "email": emailController.text,
-          "DOB": dobController.text,
-          "address": addressController.text,
-          "city": city,
-          "state": state,
-          "country": country,
-          "zip_code": zipController.text,
-          "country": country,
-          "institution": institution
-        }).whenComplete(() async {
-          if (widget.phone == 3) {
-            final userData = await FirebaseFirestore.instance
-                .collection("users")
-                .doc(user!.uid)
-                .get();
-            final data = userData.data() as Map<String, dynamic>;
+      // if (institute != null &&
+      //     city != null &&
+      //     state != null &&
+      //     country != null) {
+      await userCollection.doc(widget.id).update({
+        "fullName": nameController.text,
+        "phone": "${phoneController.text}",
+        // "phone": "+91${phoneController.text}",
+        "email": emailController.text,
+        "DOB": dobController.text,
+        "address": addressController.text,
+        "city": city,
+        "state": state,
+        "country": country,
+        "zip_code": zipController.text,
+        "institution": institution
+      }).whenComplete(() async {
+        if (widget.phone == 3) {
+          final userData = await FirebaseFirestore.instance
+              .collection("users")
+              .doc(widget.id)
+              .get();
+          final data = userData.data() as Map<String, dynamic>;
 
-            if (data['groupId'] == "") {
-              await DatabaseService(uid: user!.uid).createGroup(
-                nameController.text,
-                user!.uid,
-              );
-            }
+          if (data['groupId'] == "") {
+            await DatabaseService(uid: widget.id).createGroup(
+              nameController.text,
+              widget.id.toString(),
+            );
           }
-          NextScreen(context, BottomNav());
-        });
-      } else {
-        openSnackbar(context, "Please select country, statem and city properly",
-            primaryColor);
-      }
-    } catch (e) {
+        }
+        NextScreen(
+            context,
+            BottomNav(
+              id: user!.uid,
+            ));
+      });
+    }
+    // else {
+    //     openSnackbar(context, "Please select country, statem and city properly",
+    //         primaryColor);
+    //   }
+    // }
+    catch (e) {
       openSnackbar(context, e.toString(), primaryColor);
     }
   }
 
   getUserData() async {
     try {
-      final userData = await userCollection.doc(user!.uid).get();
+      final userData = await userCollection.doc(widget.id).get();
       final data = userData.data() as Map<String, dynamic>;
       setState(() {
-        country = data['country'];
-        state = data['state'];
-        city = data['city'];
-        institution = data['institution'];
-        nameController.text = data['fullName'];
-        emailController.text = data['email'];
-        dobController.text = data['DOB'];
-        addressController.text = data['address'];
-        zipController.text = data['zip_code'];
+        country = data['country'] ?? "";
+        state = data['state'] ?? "";
+        city = data['city'] ?? "";
+        institution = data['institution'] ?? "";
+        nameController.text = data['fullName'] ?? "";
+        emailController.text = data['email'] ?? "";
+        dobController.text = data['DOB'] ?? "";
+        addressController.text = data['address'] ?? "";
+        zipController.text = data['zip_code'] ?? "";
       });
       if (data['phone'].toString().isNotEmpty) {
         setState(() {
-          phone = data['phone'];
+          // phone = "+91${data['phone'] ?? 5555555555}";
+          // phone = data['phone'] ?? 5555555555.toString();
 
-          phoneController.text = data['phone'].toString().substring(3, 13);
+          // phoneController.text = data['phone'].toString().substring(0, 10);
+          phoneController.text = data['phone'].toString();
         });
       }
     } catch (e) {
@@ -252,7 +262,7 @@ class _InfoScreenState extends State<InfoScreen> {
                         // Return null if the entered username is valid
                         return null;
                       },
-                      readOnly: fullName.toString().isNotEmpty ? true : false,
+                      // readOnly: fullName.toString().isNotEmpty ? true : false,
                       style: text18w500(black),
                       decoration: InputDecoration(
                         contentPadding:
@@ -317,7 +327,7 @@ class _InfoScreenState extends State<InfoScreen> {
                             : "Please enter a valid email!";
                       },
                       controller: emailController,
-                      readOnly: email.toString().isNotEmpty ? true : false,
+                      // readOnly: email.toString().isNotEmpty ? true : false,
                       style: text18w500(black),
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.done,

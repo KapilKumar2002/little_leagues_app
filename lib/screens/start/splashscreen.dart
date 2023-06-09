@@ -39,13 +39,16 @@ class _SplashScreenState extends State<SplashScreen> {
   //     NextScreen(context, AdminChatRoom());
   //   });
   // }
+
+  final user = FirebaseAuth.instance.currentUser;
   @override
   void initState() {
     // TODO: implement initState
     getUserLoggedInStatus();
     super.initState();
     Timer(Duration(seconds: 2), () {
-      nextScreenReplace(context, _isSignedIn ? BottomNav() : OnBoardScreen());
+      nextScreenReplace(
+          context, _isSignedIn ? BottomNav(id: user!.uid) : OnBoardScreen());
     });
   }
 

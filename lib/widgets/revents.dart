@@ -2,37 +2,24 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_week/flutter_calendar_week.dart';
+import 'package:little_leagues/services/database_service.dart';
 import 'package:little_leagues/utils/constants.dart';
 import 'package:intl/intl.dart';
 
 class RegisteredEvents extends StatefulWidget {
-  const RegisteredEvents({super.key});
+  final String? id;
+  const RegisteredEvents({super.key, this.id});
 
   @override
   State<RegisteredEvents> createState() => _RegisteredEventsState();
 }
 
-class _RegisteredEventsState extends State<RegisteredEvents>
-    with TickerProviderStateMixin {
-  // String date = DateFormat.yMd().format(DateTime.now());
-  // String? d;
-  // int toDateNumber = 0;
+class _RegisteredEventsState extends State<RegisteredEvents> {
   DateTime date = DateTime.now();
-
   String? selectedDate;
   String day = DateFormat.E().format(DateTime.now());
   Stream? stream;
-  final user = FirebaseAuth.instance.currentUser;
-  getRegisteredEvents() async {
-    final data = await FirebaseFirestore.instance
-        .collection("users")
-        .doc(user!.uid)
-        .collection("enrolled_classes")
-        .snapshots();
-    setState(() {
-      stream = data;
-    });
-  }
+  // final user = FirebaseAuth.instance.currentUser;
 
   int dateNumber(DateTime date) {
     String month = date.month.toString();
@@ -45,6 +32,14 @@ class _RegisteredEventsState extends State<RegisteredEvents>
     return finalDate;
   }
 
+  getRegisteredEvents() {
+    DatabaseService(uid: widget.id).getRegClasses().then((value) {
+      setState(() {
+        stream = value;
+      });
+    });
+  }
+
   @override
   void initState() {
     getRegisteredEvents();
@@ -54,8 +49,6 @@ class _RegisteredEventsState extends State<RegisteredEvents>
   final CalendarWeekController _controller = CalendarWeekController();
   @override
   Widget build(BuildContext context) {
-    TabController tabController = TabController(length: 6, vsync: this);
-
     return SingleChildScrollView(
       child: Column(children: [
         Container(
@@ -88,12 +81,10 @@ class _RegisteredEventsState extends State<RegisteredEvents>
               onDatePressed: (DateTime datetime) {
                 selectedDate = DateFormat.yMd().format(datetime);
                 // Do something
-                setState(() {
-                  date = datetime;
-                });
-                setState(() {
-                  day = DateFormat.E().format(datetime);
-                });
+                date = datetime;
+
+                day = DateFormat.E().format(datetime);
+                setState(() {});
               },
               onDateLongPressed: (DateTime datetime) {
                 // Do something
@@ -143,13 +134,12 @@ class _RegisteredEventsState extends State<RegisteredEvents>
                     physics: NeverScrollableScrollPhysics(),
                     scrollDirection: Axis.vertical,
                     itemBuilder: (context, index) {
-                      return dateNumber(snapshot
-                                      .data.docs[index]['next_pay_date']
-                                      .toDate()) >=
-                                  dateNumber(date) &&
-                              dateNumber(snapshot.data.docs[index]['start_date']
-                                      .toDate()) <=
-                                  dateNumber(date)
+                      var nextDate = dateNumber(
+                          snapshot.data.docs[index]['next_pay_date'].toDate());
+                      var startDate = dateNumber(
+                          snapshot.data.docs[index]['start_date'].toDate());
+                      return nextDate >= dateNumber(date) &&
+                              startDate <= dateNumber(date)
                           ? snapshot.data.docs[index]['class_days']
                                   .contains(day)
                               ? Container(

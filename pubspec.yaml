@@ -59,6 +59,7 @@ dependencies:
   csc_picker: ^0.2.7
   upi_india: ^3.0.1
   connectivity_plus: ^2.1.0
+  cached_network_image: ^3.2.3
 
  
   

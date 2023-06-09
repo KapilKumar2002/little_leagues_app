@@ -5,7 +5,9 @@ import 'package:little_leagues/widgets/otherevents.dart';
 import 'package:little_leagues/widgets/revents.dart';
 
 class CalendarPage extends StatefulWidget {
-  const CalendarPage({super.key});
+  final String? id;
+  final String? institution;
+  const CalendarPage({super.key, this.id, this.institution});
 
   @override
   State<CalendarPage> createState() => _CalendarPageState();
@@ -34,9 +36,15 @@ class _CalendarPageState extends State<CalendarPage>
                 ]),
             verticalSpace(10),
             Expanded(
-                child: TabBarView(
-                    controller: controller,
-                    children: [RegisteredEvents(), OtherEvents()])),
+                child: TabBarView(controller: controller, children: [
+              RegisteredEvents(
+                id: widget.id,
+              ),
+              OtherEvents(
+                institution: widget.institution.toString(),
+                id: widget.id,
+              )
+            ])),
           ],
         ),
       ),

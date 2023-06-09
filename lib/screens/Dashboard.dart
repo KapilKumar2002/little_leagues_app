@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:little_leagues/screens/messages.dart';
 import 'package:little_leagues/screens/payment/paymentpage.dart';
+import 'package:little_leagues/services/database_service.dart';
 import 'package:little_leagues/utils/constants.dart';
 import 'package:intl/intl.dart';
 import 'package:little_leagues/widgets/showsnackbar.dart';
@@ -10,26 +11,44 @@ import 'package:little_leagues/widgets/showsnackbar.dart';
 
 class DashboardPage extends StatefulWidget {
   final String username;
-  DashboardPage(this.username);
+  final String id;
+  DashboardPage(this.username, this.id);
   @override
   State<DashboardPage> createState() => _DashboardPageState();
 }
 
 class _DashboardPageState extends State<DashboardPage>
     with TickerProviderStateMixin {
-  final user = FirebaseAuth.instance.currentUser;
+  // final user = FirebaseAuth.instance.currentUser;
 
   String groupId = "";
   String fullName = "";
   String institution = "";
   String zipCode = "";
 
+  // giveId() async {
+  //   // print(user!.uid);
+  //   if (user != null) {
+  //     final userCollection = await FirebaseFirestore.instance
+  //         .collection("users")
+  //         .doc(user!.uid)
+  //         .get();
+  //     final data = userCollection.data() as Map<String, dynamic>;
+
+  //     fullName = data['fullName'];
+
+  //     groupId = data['groupId'];
+  //     institution = data['institution'];
+  //     zipCode = data['zip_code'];
+  //     setState(() {});
+  //   }
+  // }
   giveId() async {
     // print(user!.uid);
-    if (user != null) {
+    if (widget.id != null) {
       final userCollection = await FirebaseFirestore.instance
           .collection("users")
-          .doc(user!.uid)
+          .doc(widget.id)
           .get();
       final data = userCollection.data() as Map<String, dynamic>;
 
@@ -37,7 +56,6 @@ class _DashboardPageState extends State<DashboardPage>
 
       groupId = data['groupId'];
       institution = data['institution'];
-      zipCode = data['zip_code'];
       setState(() {});
     }
   }
@@ -50,14 +68,6 @@ class _DashboardPageState extends State<DashboardPage>
 
     super.initState();
   }
-
-  final List<ChartData1> histogramData = <ChartData1>[
-    ChartData1("1", 80.5),
-    ChartData1("2", 20.9),
-    ChartData1("3", 30.6),
-    ChartData1("4", 12.0),
-    ChartData1("5", 85.5),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +153,15 @@ class _DashboardPageState extends State<DashboardPage>
               Container(
                 height: height(context) - 330,
                 child: TabBarView(
-                  children: [CurrentClasses(), OtherClasses()],
+                  children: [
+                    CurrentClasses(
+                      id: widget.id,
+                    ),
+                    OtherClasses(
+                      id: widget.id,
+                      institution: institution,
+                    )
+                  ],
                   controller: tabController,
                 ),
               )
@@ -366,17 +384,9 @@ class _DashboardPageState extends State<DashboardPage>
   }
 }
 
-class ChartData1 {
-  ChartData1(
-    this.x,
-    this.y,
-  );
-  final double y;
-  final String x;
-}
-
 class CurrentClasses extends StatefulWidget {
-  const CurrentClasses({super.key});
+  final String id;
+  const CurrentClasses({super.key, required this.id});
 
   @override
   State<CurrentClasses> createState() => _CurrentClassesState();
@@ -384,15 +394,12 @@ class CurrentClasses extends StatefulWidget {
 
 class _CurrentClassesState extends State<CurrentClasses> {
   Stream? stream;
-  final user = FirebaseAuth.instance.currentUser;
+  // final user = FirebaseAuth.instance.currentUser;
   getClasses() async {
-    final data = await FirebaseFirestore.instance
-        .collection("users")
-        .doc(user!.uid)
-        .collection("enrolled_classes")
-        .snapshots();
-    setState(() {
-      stream = data;
+    DatabaseService(uid: widget.id).getRegClasses().then((value) {
+      setState(() {
+        stream = value;
+      });
     });
   }
 
@@ -400,9 +407,7 @@ class _CurrentClassesState extends State<CurrentClasses> {
   @override
   void initState() {
     // TODO: implement initState
-
     toDateNumber = dateNumber(DateTime.now());
-    // print(toDateNumber);
     getClasses();
     super.initState();
   }
@@ -433,8 +438,9 @@ class _CurrentClassesState extends State<CurrentClasses> {
                         itemCount: snapshot.data.docs.length,
                         itemBuilder: (context, index) {
                           DateTime dateTime = snapshot
-                              .data.docs[index]['next_pay_date']
-                              .toDate();
+                                  .data.docs[index]['next_pay_date']
+                                  .toDate() ??
+                              DateTime.now();
                           String date = DateFormat.yMd().format(dateTime);
                           return dateNumber(dateTime) >= toDateNumber
                               ? Container(
@@ -493,6 +499,11 @@ class _CurrentClassesState extends State<CurrentClasses> {
                                             Text(
                                               snapshot.data.docs[index]
                                                   ['class_name'],
+                                              style: text15w500(white2),
+                                            ),
+                                            Text(
+                                              snapshot.data.docs[index]
+                                                  ['class_desc'],
                                               style: text15w500(white2),
                                             ),
                                             Row(
@@ -625,7 +636,9 @@ class _CurrentClassesState extends State<CurrentClasses> {
 }
 
 class OtherClasses extends StatefulWidget {
-  const OtherClasses({super.key});
+  final String institution;
+  final String id;
+  const OtherClasses({super.key, required this.id, required this.institution});
 
   @override
   State<OtherClasses> createState() => _OtherClassesState();
@@ -635,42 +648,30 @@ class _OtherClassesState extends State<OtherClasses> {
   Stream? stream;
   QuerySnapshot? snap;
   List<String> enrolledClass = [];
-  Map<String, dynamic> classData = {};
-  final user = FirebaseAuth.instance.currentUser;
+  // final user = FirebaseAuth.instance.currentUser;
 
-  getEnrolledClasses() async {
+  getEnrolledClasses() {
     enrolledClass = [];
-    final enroll = await FirebaseFirestore.instance
-        .collection("users")
-        .doc(user!.uid)
-        .collection("enrolled_classes")
-        .get();
-
-    if (mounted) {
-      setState(() {
-        snap = enroll;
-      });
-    }
-  }
-
-  getClasses() async {
-    final data =
-        await FirebaseFirestore.instance.collection("classes").snapshots();
-    setState(() {
-      stream = data;
+    DatabaseService(uid: widget.id).getSnap().then((value) {
+      if (mounted) {
+        setState(() {
+          snap = value;
+        });
+      }
     });
   }
 
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
+  getClasses() {
+    DatabaseService().getClasses(widget.institution).then((value) {
+      setState(() {
+        stream = value;
+      });
+    });
   }
 
   @override
   void initState() {
     // TODO: implement initState
-
     getClasses();
     getEnrolledClasses();
     super.initState();
@@ -687,14 +688,14 @@ class _OtherClassesState extends State<OtherClasses> {
             enrolledClass.add(snap!.docs[i]['class_id']);
           }
         }
+
         return snapshot.hasData
             ? ListView.builder(
-                // physics: NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: snapshot.data.docs.length,
                 itemBuilder: (context, index) {
-                  return enrolledClass
-                          .contains(snapshot.data.docs[index]['class_id'])
+                  var id = snapshot.data.docs[index]['class_id'];
+                  return enrolledClass.contains(id)
                       ? horizontalSpace(0)
                       : Container(
                           padding: EdgeInsets.all(15),
@@ -745,6 +746,10 @@ class _OtherClassesState extends State<OtherClasses> {
                                   children: [
                                     Text(
                                       snapshot.data.docs[index]['class_name'],
+                                      style: text15w500(white2),
+                                    ),
+                                    Text(
+                                      snapshot.data.docs[index]['class_desc'],
                                       style: text15w500(white2),
                                     ),
                                     Row(
@@ -807,31 +812,83 @@ class _OtherClassesState extends State<OtherClasses> {
                                               .docs[index]['class_days']
                                               .length),
                                     ),
-                                    InkWell(
-                                      onTap: () {
-                                        NextScreen(
-                                            context,
-                                            PaymentPage(
-                                              sportId: snapshot.data.docs[index]
-                                                  ['class_id'],
-                                              sportName: snapshot.data
-                                                  .docs[index]['class_name'],
-                                            ));
-                                      },
-                                      child: Container(
-                                        margin: EdgeInsets.only(top: 12),
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 12, vertical: 7),
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                            color: primaryColor),
-                                        child: Text(
-                                          "Join Now",
-                                          style: text14w700(black),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            InkWell(
+                                              onTap: () {
+                                                // NextScreen(
+                                                //     context,
+                                                //     PaymentPage(
+                                                //       sportId: snapshot
+                                                //               .data.docs[index]
+                                                //           ['class_id'],
+                                                //       sportName: snapshot
+                                                //               .data.docs[index]
+                                                //           ['class_name'],
+                                                //     ));
+                                                DatabaseService(uid: widget.id)
+                                                    .joinClass(snapshot
+                                                        .data.docs[index].id);
+                                              },
+                                              child: Container(
+                                                margin:
+                                                    EdgeInsets.only(top: 12),
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 12,
+                                                    vertical: 7),
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5),
+                                                    color: primaryColor),
+                                                child: Text(
+                                                  "Join Now",
+                                                  style: text14w700(black),
+                                                ),
+                                              ),
+                                            ),
+                                            horizontalSpace(7),
+                                            InkWell(
+                                              onTap: () {
+                                                DatabaseService(uid: widget.id)
+                                                    .addClassToCart(snapshot
+                                                            .data.docs[index]
+                                                        ['class_id']);
+                                                openSnackbar(
+                                                    context,
+                                                    "Your class has been added to cart",
+                                                    primaryColor);
+                                              },
+                                              child: Container(
+                                                margin:
+                                                    EdgeInsets.only(top: 12),
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 7, vertical: 7),
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5),
+                                                    color: white2),
+                                                child: Text(
+                                                  "Add to Cart",
+                                                  style: text14w700(black),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ),
-                                    )
+                                        Text(
+                                          "\u20b9 " +
+                                              snapshot.data.docs[index]['price']
+                                                  .toString(),
+                                          style: text12w500(white2),
+                                        )
+                                      ],
+                                    ),
                                   ],
                                 ),
                               )

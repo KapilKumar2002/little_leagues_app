@@ -65,7 +65,9 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
       "size": productDetails['size'],
       "type": productDetails['type'],
       "selectedSize": selectedSize == null ? "" : selectedSize,
-      "qty": 1
+      "qty": 1,
+      "item": "product",
+      'isSelected': true
     });
   }
 
@@ -292,7 +294,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(productDetails['name'].toString()),
+                                  Text(productDetails['name'] ?? ""),
                                   Text(
                                     "ID: 89P13",
                                     style: text12w400(grey.withOpacity(.5)),
@@ -301,12 +303,12 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                               ),
                               verticalSpace(5),
                               Text(
-                                productDetails['desc'].toString(),
+                                productDetails['desc'] ?? "",
                                 style: text18w500(black),
                               ),
                               verticalSpace(5),
                               Text(
-                                "\u20B9 ${productDetails['price']}",
+                                "\u20B9 ${productDetails['price'] ?? ''}",
                                 style: text10w500(black,
                                     decoration: TextDecoration.lineThrough),
                               ),
@@ -322,7 +324,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                                 width: 75,
                                 child: Center(
                                     child: Text(
-                                  "\u20B9 ${productDetails['previous price']}",
+                                  "\u20B9 ${productDetails['previous price'] ?? ''}",
                                   style: text18w500(black),
                                 )),
                               )

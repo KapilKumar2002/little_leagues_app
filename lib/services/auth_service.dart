@@ -5,11 +5,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:little_leagues/helper/helper_function.dart';
-import 'package:little_leagues/screens/bottomnav.dart';
 import 'package:little_leagues/services/database_service.dart';
 import 'package:little_leagues/utils/constants.dart';
 import 'package:little_leagues/widgets/showsnackbar.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:intl/intl.dart';
 
 class AuthService {
   AuthService();
@@ -52,7 +52,7 @@ class AuthService {
             .get();
         if (userData.data() == null) {
           await DatabaseService(uid: user.uid)
-              .savingUserData(fullName, email, phone);
+              .savingUserData(fullName, email, phone, profileIcon);
           await DatabaseService(uid: user.uid).createGroup(fullName, user.uid);
         }
 
@@ -75,17 +75,17 @@ class AuthService {
     };
     PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout =
         (String verificationID) {
-      openSnackbar(context, "Time out", primaryColor);
+      // openSnackbar(context, "Time out", primaryColor);
     };
     try {
       await firebaseAuth.verifyPhoneNumber(
-          timeout: Duration(seconds: 30),
-          phoneNumber: phoneNumber,
+          timeout: Duration(seconds: 60),
+          phoneNumber: "+91${phoneNumber}",
           verificationCompleted: verificationCompleted,
           verificationFailed: verificationFailed,
           codeSent: (String? verificationId, int? resendToken) {
-            openSnackbar(context, "Verification Code sent on the phone number",
-                primaryColor);
+            openSnackbar(
+                context, "Verification Code has been sent.", primaryColor);
             setData(verificationId);
           },
           codeAutoRetrievalTimeout: codeAutoRetrievalTimeout);
@@ -94,8 +94,8 @@ class AuthService {
     }
   }
 
-  Future signInwithPhoneNumber(
-      String verificationId, String smsCode, BuildContext context) async {
+  Future signInwithPhoneNumber(String phone, String verificationId,
+      String smsCode, BuildContext context) async {
     try {
       AuthCredential credential = PhoneAuthProvider.credential(
           verificationId: verificationId, smsCode: smsCode);
@@ -106,20 +106,18 @@ class AuthService {
         final user = userCredential.user;
 
         bool decision = await DatabaseService(uid: user!.uid).checkUserExists();
-        await HelperFunctions.saveUserUidSF(user.uid);
+        // await HelperFunctions.saveUserUidSF(user.uid);
         if (decision) {
           return true;
         } else {
           await DatabaseService(uid: user.uid)
-              .savingUserData("", "", user.phoneNumber.toString());
+              .savingUserData("", "", phone.toString(), profileIcon);
         }
         return true;
       }
     } catch (e) {
       if (e == "Time out") {
-      } else {
-        openSnackbar(context, e.toString(), primaryColor);
-      }
+      } else {}
     }
   }
 
@@ -151,10 +149,10 @@ class AuthService {
 
           if (userData.data() == null) {
             await DatabaseService(uid: userDetails.uid).savingUserData(
-              userDetails.displayName.toString(),
-              userDetails.email.toString(),
-              "",
-            );
+                userDetails.displayName.toString(),
+                userDetails.email.toString(),
+                "",
+                userDetails.photoURL.toString());
 
             await DatabaseService(uid: userDetails.uid).createGroup(
               userDetails.displayName.toString(),
@@ -208,7 +206,10 @@ class AuthService {
             .get();
         if (userData.data() == null) {
           await DatabaseService(uid: user.uid).savingUserData(
-              profile['name'].toString(), profile['email'].toString(), "");
+              profile['name'].toString(),
+              profile['email'].toString(),
+              "",
+              profile['picture']['data']['url']);
 
           await DatabaseService(uid: user.uid)
               .createGroup(profile['name'], user.uid);
@@ -239,11 +240,15 @@ class AuthService {
   }
 
   // signout
-  Future signOut() async {
+  Future signOut(String uid) async {
     try {
       await HelperFunctions.saveUserLoggedInStatus(false);
       await HelperFunctions.saveUserEmailSF("");
       await HelperFunctions.saveUserNameSF("");
+      await FirebaseFirestore.instance
+          .collection("users")
+          .doc(uid)
+          .update({"lastSignout": DateFormat.yMMMMd().format(DateTime.now())});
       await FacebookAuth.instance.logOut();
       await firebaseAuth.signOut();
       await GoogleSignIn().signOut();

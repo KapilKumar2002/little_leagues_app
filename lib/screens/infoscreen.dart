@@ -1,15 +1,22 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:csc_picker/csc_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:little_leagues/helper/helper_function.dart';
 // import 'package:geocoding/geocoding.dart';
 // import 'package:geolocator/geolocator.dart';
 import 'package:little_leagues/screens/bottomnav.dart';
 import 'package:little_leagues/services/database_service.dart';
 import 'package:little_leagues/utils/constants.dart';
 import 'package:intl/intl.dart';
+import 'package:little_leagues/widgets/customdropdown.dart';
 import 'package:little_leagues/widgets/showsnackbar.dart';
+import 'package:uuid/uuid.dart';
 
 class InfoScreen extends StatefulWidget {
   final String? id;
@@ -23,13 +30,11 @@ class InfoScreen extends StatefulWidget {
 class _InfoScreenState extends State<InfoScreen> {
   final user = FirebaseAuth.instance.currentUser;
   static const List<String> institute = <String>[
-    "Krishna",
-    "Green Land",
-    "Ganesha Apartment",
-    "Venkatesh Apartment",
-    "Atithi Land",
-    "Lotus Park Apartment"
+    "Genexx Valley",
+    "Madgul Antaraa",
   ];
+
+  final key = GlobalKey<FormFieldState>();
 
   final nameController = TextEditingController();
   final emailController = TextEditingController();
@@ -46,6 +51,7 @@ class _InfoScreenState extends State<InfoScreen> {
   String? state;
   String? institution = "Select institution";
   String? country;
+  String? profilePic;
 
   final CollectionReference userCollection =
       FirebaseFirestore.instance.collection("users");
@@ -68,9 +74,12 @@ class _InfoScreenState extends State<InfoScreen> {
         "state": state,
         "country": country,
         "zip_code": zipController.text,
-        "institution": institution
+        "institution": key.currentState!.value == null
+            ? institution
+            : key.currentState!.value
       }).whenComplete(() async {
         if (widget.phone == 3) {
+          print(widget.phone);
           final userData = await FirebaseFirestore.instance
               .collection("users")
               .doc(widget.id)
@@ -83,20 +92,18 @@ class _InfoScreenState extends State<InfoScreen> {
               widget.id.toString(),
             );
           }
+          await HelperFunctions.saveUserLoggedInStatus(true);
         }
         NextScreen(
             context,
             BottomNav(
-              id: user!.uid,
+              id: widget.id,
             ));
+
+        // final userExist =
+        //     await DatabaseService(uid: widget.id).checkUserExists();
       });
-    }
-    // else {
-    //     openSnackbar(context, "Please select country, statem and city properly",
-    //         primaryColor);
-    //   }
-    // }
-    catch (e) {
+    } catch (e) {
       openSnackbar(context, e.toString(), primaryColor);
     }
   }
@@ -110,11 +117,13 @@ class _InfoScreenState extends State<InfoScreen> {
         state = data['state'] ?? "";
         city = data['city'] ?? "";
         institution = data['institution'] ?? "";
+
         nameController.text = data['fullName'] ?? "";
         emailController.text = data['email'] ?? "";
         dobController.text = data['DOB'] ?? "";
         addressController.text = data['address'] ?? "";
         zipController.text = data['zip_code'] ?? "";
+        profilePic = data['profilePic'];
       });
       if (data['phone'].toString().isNotEmpty) {
         setState(() {
@@ -130,47 +139,44 @@ class _InfoScreenState extends State<InfoScreen> {
     }
   }
 
-  // Future<Position> _determinePosition() async {
-  //   bool serviceEnabled;
-  //   LocationPermission permission;
+  File? imageFile;
 
-  //   // Test if location services are enabled.
-  //   serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  //   if (!serviceEnabled) {
-  //     await Geolocator.openLocationSettings();
-  //     return Future.error('Location services are disabled.');
-  //   }
+  Future getImage() async {
+    ImagePicker _picker = ImagePicker();
 
-  //   permission = await Geolocator.checkPermission();
-  //   if (permission == LocationPermission.denied) {
-  //     permission = await Geolocator.requestPermission();
-  //     if (permission == LocationPermission.denied) {
-  //       return Future.error('Location permissions are denied');
-  //     }
-  //   }
+    await _picker.pickImage(source: ImageSource.gallery).then((xFile) {
+      if (xFile != null) {
+        imageFile = File(xFile.path);
+        uploadImage();
+      }
+    });
+  }
 
-  //   if (permission == LocationPermission.deniedForever) {
-  //     // Permissions are denied forever, handle appropriately.
-  //     return Future.error(
-  //         'Location permissions are permanently denied, we cannot request permissions.');
-  //   }
+  Future uploadImage() async {
+    String fileName = Uuid().v1();
+    int status = 1;
 
-  //   return await Geolocator.getCurrentPosition();
-  // }
+    var ref = FirebaseStorage.instance
+        .ref()
+        .child('profileImages')
+        .child("${user!.uid}.jpg");
 
-  // Future<void> GetAddressFromLatLong(Position position) async {
-  //   List<Placemark> placemark =
-  //       await placemarkFromCoordinates(position.latitude, position.longitude);
-  //   print(placemark);
-  //   Placemark place = placemark[0];
-  //   addressController.text =
-  //       "${place.locality},  ${place.administrativeArea},  ${place.country}, ${place.postalCode}";
-  //   zipCode = place.postalCode;
-  //   city = place.locality;
-  //   state = place.administrativeArea;
+    var uploadTask = await ref.putFile(imageFile!).catchError((error) async {
+      status = 0;
+    });
 
-  //   setState(() {});
-  // }
+    if (status == 1) {
+      profilePic = await uploadTask.ref.getDownloadURL();
+      setState(() {});
+
+      if (profilePic != "") {
+        FirebaseFirestore.instance
+            .collection("users")
+            .doc(widget.id)
+            .update({"profilePic": profilePic});
+      }
+    }
+  }
 
   void _showDatePicker() {
     showDatePicker(
@@ -195,6 +201,7 @@ class _InfoScreenState extends State<InfoScreen> {
   @override
   void initState() {
     getUserData();
+
     // TODO: implement initState
     super.initState();
   }
@@ -220,18 +227,20 @@ class _InfoScreenState extends State<InfoScreen> {
                 child: Stack(
                   children: [
                     CircleAvatar(
-                      radius: 40,
-                      backgroundColor: Colors.grey.shade300,
-                      child: Icon(
-                        Icons.person_outline_outlined,
-                        color: Colors.grey,
-                      ),
-                    ),
+                        radius: 40,
+                        backgroundColor: white,
+                        backgroundImage:
+                            NetworkImage(profilePic ?? profileIcon)),
                     Align(
                         alignment: AlignmentDirectional.bottomEnd,
-                        child: Icon(
-                          Icons.edit,
-                          color: white,
+                        child: InkWell(
+                          onTap: () {
+                            getImage();
+                          },
+                          child: Icon(
+                            Icons.edit,
+                            color: white,
+                          ),
                         ))
                   ],
                 ),
@@ -292,7 +301,7 @@ class _InfoScreenState extends State<InfoScreen> {
                           return 'This field is required!';
                         }
                         if (value.trim().length < 10) {
-                          return 'Username must be at least 6 characters in length!';
+                          return 'Phone number must be at least 10 characters in length!';
                         }
                         // Return null if the entered username is valid
                         return null;
@@ -361,7 +370,7 @@ class _InfoScreenState extends State<InfoScreen> {
                       readOnly: true,
                       controller: dobController,
                       style: text18w500(black),
-                      keyboardType: TextInputType.emailAddress,
+                      keyboardType: TextInputType.text,
                       textInputAction: TextInputAction.done,
                       decoration: InputDecoration(
                         suffixIcon: IconButton(
@@ -417,36 +426,12 @@ class _InfoScreenState extends State<InfoScreen> {
                       style: text16w600(white),
                     ),
                     verticalSpace(6),
-                    Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                      decoration: BoxDecoration(
-                          color: white,
-                          border:
-                              Border.fromBorderSide(BorderSide(color: white2))),
-                      child: DropdownButton(
-                          style: text18w500(black),
-                          hint: Text(
-                            institution!,
-                            style: text18w500(black),
-                          ),
-                          icon: Icon(
-                            CupertinoIcons.chevron_down,
-                            size: 15,
-                          ),
-                          dropdownColor: white,
-                          underline: SizedBox(),
-                          isExpanded: true,
-                          items: institute.map((e) {
-                            return DropdownMenuItem(
-                                value: e.toString(), child: Text(e.toString()));
-                          }).toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              institution = value;
-                            });
-                          }),
-                    ),
+                    CustomDropDownField(
+                        list: institute,
+                        fieldKey: key,
+                        hint: institution == ""
+                            ? "Select institution"
+                            : institution!),
                     verticalSpace(25),
                     Text(
                       "Zip Code",
@@ -468,7 +453,7 @@ class _InfoScreenState extends State<InfoScreen> {
                       maxLines: 2,
                       controller: zipController,
                       style: text18w500(black),
-                      keyboardType: TextInputType.emailAddress,
+                      keyboardType: TextInputType.number,
                       textInputAction: TextInputAction.done,
                       decoration: InputDecoration(
                         contentPadding:
@@ -504,7 +489,7 @@ class _InfoScreenState extends State<InfoScreen> {
                       maxLines: 2,
                       controller: addressController,
                       style: text18w500(black),
-                      keyboardType: TextInputType.emailAddress,
+                      keyboardType: TextInputType.text,
                       textInputAction: TextInputAction.done,
                       decoration: InputDecoration(
                         contentPadding:

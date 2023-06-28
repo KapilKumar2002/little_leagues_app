@@ -3,14 +3,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:little_leagues/screens/auth/signin.dart';
 import 'package:little_leagues/screens/infoscreen.dart';
+import 'package:little_leagues/screens/payment/orderhistory.dart';
 import 'package:little_leagues/screens/payment/paymenthistory.dart';
 import 'package:little_leagues/screens/shop/yourcart.dart';
 import 'package:little_leagues/services/auth_service.dart';
 import 'package:little_leagues/utils/constants.dart';
 
 class CustomDrawer extends StatefulWidget {
-  final String? id;
-  const CustomDrawer({super.key, required this.id});
+  final String id;
+  final String? image;
+  const CustomDrawer({super.key, required this.id, required this.image});
 
   @override
   State<CustomDrawer> createState() => _CustomDrawerState();
@@ -88,7 +90,9 @@ class _CustomDrawerState extends State<CustomDrawer> {
                   child: CircleAvatar(
                     radius: 50,
                     backgroundColor: transparentColor,
-                    backgroundImage: AssetImage("assets/pim.jpg"),
+                    backgroundImage: widget.image!.isNotEmpty
+                        ? NetworkImage(widget.image!)
+                        : null,
                   ),
                 )
               ]),
@@ -131,6 +135,10 @@ class _CustomDrawerState extends State<CustomDrawer> {
                     title: Text("Payment History"),
                   ),
                   ListTile(
+                    onTap: () {
+                      NextScreen(
+                          context, OrderHistoryPage(id: widget.id.toString()));
+                    },
                     leading: Icon(
                       Icons.shopping_bag_rounded,
                       color: black,
@@ -155,7 +163,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
               ),
               InkWell(
                 onTap: () async {
-                  await AuthService().signOut();
+                  await AuthService().signOut(widget.id.toString());
                   Navigator.of(context).pushAndRemoveUntil(
                       MaterialPageRoute(builder: (context) => const SignIn()),
                       (route) => false);

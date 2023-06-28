@@ -1,15 +1,11 @@
 import 'package:email_otp/email_otp.dart';
-import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/material.dart';
-
 import 'package:little_leagues/helper/helper_function.dart';
 import 'package:little_leagues/screens/auth/email_auth_screen.dart';
-
 import 'package:little_leagues/screens/auth/signin.dart';
 import 'package:little_leagues/screens/bottomnav.dart';
 import 'package:little_leagues/services/auth_service.dart';
 import 'package:little_leagues/services/database_service.dart';
-
 import 'package:little_leagues/utils/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:little_leagues/widgets/showsnackbar.dart';
@@ -22,7 +18,6 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
-  final user = FirebaseAuth.instance.currentUser;
   TextEditingController nameController = new TextEditingController();
   TextEditingController phoneController = new TextEditingController();
   TextEditingController emailController = new TextEditingController();
@@ -68,7 +63,7 @@ class _SignUpState extends State<SignUp> {
             email: emailController.value.text.trim(),
             password: passController.value.text.trim(),
             emailOTP: myauth!,
-            phone: "+91${phoneController.value.text.trim()}",
+            phone: "${phoneController.value.text.trim()}",
           ));
       _isLoading = false;
     } else {
@@ -117,16 +112,6 @@ class _SignUpState extends State<SignUp> {
           _isLoading = false;
         });
       }
-    });
-  }
-
-  handleAfterSignIn() {
-    Future.delayed(const Duration(milliseconds: 1000)).then((value) {
-      nextScreenReplace(
-          context,
-          BottomNav(
-            id: user!.uid,
-          ));
     });
   }
 
@@ -330,10 +315,9 @@ class _SignUpState extends State<SignUp> {
                           ],
                         )),
                     verticalSpace(10),
-                    InkWell(
-                      onTap: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => SignIn()));
+                    TextButton(
+                      onPressed: () {
+                        NextScreen(context, SignIn());
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,

@@ -1,50 +1,47 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:little_leagues/screens/messages.dart';
-import 'package:little_leagues/screens/payment/paymentpage.dart';
+import 'package:little_leagues/screens/payment/getpaymentinfo.dart';
+import 'package:little_leagues/screens/shop/yourcart.dart';
 import 'package:little_leagues/services/database_service.dart';
 import 'package:little_leagues/utils/constants.dart';
 import 'package:intl/intl.dart';
 import 'package:little_leagues/widgets/showsnackbar.dart';
+import 'package:http/http.dart' as http;
+
 // import 'package:flutter_charts/flutter_charts.dart' as charts;
+class MyWidget extends StatefulWidget {
+  const MyWidget({super.key});
+
+  @override
+  State<MyWidget> createState() => _MyWidgetState();
+}
+
+class _MyWidgetState extends State<MyWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
 
 class DashboardPage extends StatefulWidget {
+  final String profilePic;
   final String username;
   final String id;
-  DashboardPage(this.username, this.id);
+  const DashboardPage(this.username, this.id, this.profilePic);
   @override
   State<DashboardPage> createState() => _DashboardPageState();
 }
 
 class _DashboardPageState extends State<DashboardPage>
     with TickerProviderStateMixin {
-  // final user = FirebaseAuth.instance.currentUser;
-
   String groupId = "";
   String fullName = "";
   String institution = "";
-  String zipCode = "";
 
-  // giveId() async {
-  //   // print(user!.uid);
-  //   if (user != null) {
-  //     final userCollection = await FirebaseFirestore.instance
-  //         .collection("users")
-  //         .doc(user!.uid)
-  //         .get();
-  //     final data = userCollection.data() as Map<String, dynamic>;
-
-  //     fullName = data['fullName'];
-
-  //     groupId = data['groupId'];
-  //     institution = data['institution'];
-  //     zipCode = data['zip_code'];
-  //     setState(() {});
-  //   }
-  // }
   giveId() async {
-    // print(user!.uid);
     if (widget.id != null) {
       final userCollection = await FirebaseFirestore.instance
           .collection("users")
@@ -110,8 +107,10 @@ class _DashboardPageState extends State<DashboardPage>
                       children: [
                         CircleAvatar(
                           radius: 25,
-                          backgroundColor: transparentColor,
-                          backgroundImage: AssetImage("assets/pim.jpg"),
+                          backgroundColor: white2,
+                          backgroundImage: widget.profilePic.isNotEmpty
+                              ? NetworkImage(widget.profilePic)
+                              : null,
                         ),
                         horizontalSpace(15),
                         Text(
@@ -472,20 +471,18 @@ class _CurrentClassesState extends State<CurrentClasses> {
                                           child: Container(
                                             width: 75,
                                             height: 75,
-                                            child: Image.network(
-                                              snapshot.data.docs[index]
-                                                  ['class_image'],
-                                              fit: BoxFit.fill,
-                                              errorBuilder:
+                                            child: CachedNetworkImage(
+                                              fit: BoxFit.cover,
+                                              progressIndicatorBuilder:
                                                   (context, error, stackTrace) {
                                                 return Container(
-                                                  color: white.withOpacity(.6),
-                                                  child: Center(
-                                                    child: Icon(Icons
-                                                        .image_search_rounded),
-                                                  ),
+                                                  color: backgroundColor,
                                                 );
                                               },
+                                              imageUrl: snapshot.data
+                                                  .docs[index]['class_image'],
+                                              height: 60,
+                                              width: 60,
                                             ),
                                           ),
                                         ),
@@ -546,6 +543,9 @@ class _CurrentClassesState extends State<CurrentClasses> {
                                             Container(
                                               height: 20,
                                               child: ListView.separated(
+                                                  physics:
+                                                      NeverScrollableScrollPhysics(),
+                                                  shrinkWrap: true,
                                                   scrollDirection:
                                                       Axis.horizontal,
                                                   itemBuilder: (context, i) {
@@ -576,29 +576,66 @@ class _CurrentClassesState extends State<CurrentClasses> {
                                                       .length),
                                             ),
                                             verticalSpace(7),
-                                            date ==
-                                                    DateFormat.yMd()
-                                                        .format(DateTime.now())
-                                                ? InkWell(
-                                                    onTap: () {},
-                                                    child: Container(
-                                                      margin: EdgeInsets.only(
-                                                          top: 12),
-                                                      padding:
-                                                          EdgeInsets.symmetric(
-                                                              horizontal: 12,
-                                                              vertical: 7),
-                                                      decoration: BoxDecoration(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(5),
-                                                          color: primaryColor),
-                                                      child: Text(
-                                                        "Pay Now",
-                                                        style:
-                                                            text14w700(black),
+                                            dateNumber(dateTime) <=
+                                                    dateNumber(DateTime.now()
+                                                        .add(Duration(days: 5)))
+                                                ? Row(
+                                                    children: [
+                                                      InkWell(
+                                                        onTap: () {
+                                                          NextScreen(
+                                                              context,
+                                                              GetPaymentInfo(
+                                                                  product: [
+                                                                    {
+                                                                      "type":
+                                                                          "installment",
+                                                                      "id": snapshot
+                                                                          .data
+                                                                          .docs[index]['class_id'],
+                                                                      "date": snapshot
+                                                                          .data
+                                                                          .docs[index]['next_pay_date']
+                                                                    }
+                                                                  ],
+                                                                  amount: snapshot
+                                                                      .data
+                                                                      .docs[
+                                                                          index]
+                                                                          [
+                                                                          'price']
+                                                                      .toString()));
+                                                        },
+                                                        child: Container(
+                                                          margin:
+                                                              EdgeInsets.only(
+                                                                  top: 12),
+                                                          padding: EdgeInsets
+                                                              .symmetric(
+                                                                  horizontal:
+                                                                      12,
+                                                                  vertical: 7),
+                                                          decoration: BoxDecoration(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          5),
+                                                              color:
+                                                                  primaryColor),
+                                                          child: Text(
+                                                            "Pay Now",
+                                                            style: text14w700(
+                                                                black),
+                                                          ),
+                                                        ),
                                                       ),
-                                                    ),
+                                                      horizontalSpace(20),
+                                                      Text(
+                                                        "\u20B9 ${snapshot.data.docs[index]['price']}",
+                                                        style:
+                                                            text12w500(white2),
+                                                      )
+                                                    ],
                                                   )
                                                 : Row(
                                                     mainAxisAlignment:
@@ -722,19 +759,18 @@ class _OtherClassesState extends State<OtherClasses> {
                                   child: Container(
                                     width: 75,
                                     height: 75,
-                                    child: Image.network(
-                                      snapshot.data.docs[index]['class_image'],
-                                      fit: BoxFit.fill,
-                                      errorBuilder:
+                                    child: CachedNetworkImage(
+                                      fit: BoxFit.cover,
+                                      progressIndicatorBuilder:
                                           (context, error, stackTrace) {
                                         return Container(
-                                          color: white.withOpacity(.6),
-                                          child: Center(
-                                            child: Icon(
-                                                Icons.image_search_rounded),
-                                          ),
+                                          color: backgroundColor,
                                         );
                                       },
+                                      imageUrl: snapshot.data.docs[index]
+                                          ['class_image'],
+                                      height: 60,
+                                      width: 60,
                                     ),
                                   ),
                                 ),
@@ -790,6 +826,8 @@ class _OtherClassesState extends State<OtherClasses> {
                                       height: 20,
                                       child: ListView.separated(
                                           scrollDirection: Axis.horizontal,
+                                          physics:
+                                              NeverScrollableScrollPhysics(),
                                           itemBuilder: (context, i) {
                                             return Container(
                                               decoration: BoxDecoration(
@@ -816,70 +854,71 @@ class _OtherClassesState extends State<OtherClasses> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Row(
-                                          children: [
-                                            InkWell(
+                                        // InkWell(
+                                        //   onTap: () {
+                                        //     NextScreen(
+                                        //         context,
+                                        //         PaymentPage(
+                                        //           userId: widget.id,
+                                        //           totalPrice: snapshot.data
+                                        //               .docs[index]['price'],
+                                        //           productList: [
+                                        //             {
+                                        //               'item': "class",
+                                        //               "id": snapshot
+                                        //                       .data.docs[index]
+                                        //                   ['class_id']
+                                        //             }
+                                        //           ],
+                                        //         ));
+                                        //   },
+                                        //   child: Container(
+                                        //     margin: EdgeInsets.only(top: 12),
+                                        //     padding: EdgeInsets.symmetric(
+                                        //         horizontal: 12, vertical: 7),
+                                        //     decoration: BoxDecoration(
+                                        //         borderRadius:
+                                        //             BorderRadius.circular(5),
+                                        //         color: primaryColor),
+                                        //     child: Text(
+                                        //       "Join Now",
+                                        //       style: text14w700(black),
+                                        //     ),
+                                        //   ),
+                                        // ),
+                                        // horizontalSpace(7),
+                                        InkWell(
+                                          onTap: () {
+                                            DatabaseService(uid: widget.id)
+                                                .addClassToCart(snapshot.data
+                                                    .docs[index]['class_id']);
+                                            openSnackbar(
+                                              context,
+                                              "Your class has been added to cart",
+                                              primaryColor,
+                                              label: "View",
                                               onTap: () {
-                                                // NextScreen(
-                                                //     context,
-                                                //     PaymentPage(
-                                                //       sportId: snapshot
-                                                //               .data.docs[index]
-                                                //           ['class_id'],
-                                                //       sportName: snapshot
-                                                //               .data.docs[index]
-                                                //           ['class_name'],
-                                                //     ));
-                                                DatabaseService(uid: widget.id)
-                                                    .joinClass(snapshot
-                                                        .data.docs[index].id);
-                                              },
-                                              child: Container(
-                                                margin:
-                                                    EdgeInsets.only(top: 12),
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 12,
-                                                    vertical: 7),
-                                                decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            5),
-                                                    color: primaryColor),
-                                                child: Text(
-                                                  "Join Now",
-                                                  style: text14w700(black),
-                                                ),
-                                              ),
-                                            ),
-                                            horizontalSpace(7),
-                                            InkWell(
-                                              onTap: () {
-                                                DatabaseService(uid: widget.id)
-                                                    .addClassToCart(snapshot
-                                                            .data.docs[index]
-                                                        ['class_id']);
-                                                openSnackbar(
+                                                NextScreen(
                                                     context,
-                                                    "Your class has been added to cart",
-                                                    primaryColor);
+                                                    YourCart(
+                                                      id: widget.id,
+                                                    ));
                                               },
-                                              child: Container(
-                                                margin:
-                                                    EdgeInsets.only(top: 12),
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 7, vertical: 7),
-                                                decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            5),
-                                                    color: white2),
-                                                child: Text(
-                                                  "Add to Cart",
-                                                  style: text14w700(black),
-                                                ),
-                                              ),
+                                            );
+                                          },
+                                          child: Container(
+                                            margin: EdgeInsets.only(top: 12),
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 7, vertical: 7),
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(5),
+                                                color: primaryColor),
+                                            child: Text(
+                                              "Add to Cart",
+                                              style: text14w700(black),
                                             ),
-                                          ],
+                                          ),
                                         ),
                                         Text(
                                           "\u20b9 " +

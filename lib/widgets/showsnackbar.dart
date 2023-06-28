@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:little_leagues/utils/constants.dart';
 
-openSnackbar(context, snackMessage, color) {
+openSnackbar(context, snackMessage, color,
+    {VoidCallback? onTap, String? label}) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       backgroundColor: color,
       action: SnackBarAction(
-        label: "OK",
+        label: label ?? "OK",
         textColor: Colors.black,
-        onPressed: () {},
+        onPressed: onTap ?? () {},
       ),
       content: Text(
         snackMessage,

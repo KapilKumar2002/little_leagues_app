@@ -22,18 +22,22 @@ class _CustomDropDownFieldState extends State<CustomDropDownField> {
         autovalidateMode: AutovalidateMode.onUserInteraction,
         key: widget.fieldKey,
         validator: (value) {
+          if (widget.hint != "Select institution") {
+            return null;
+          }
           if (value == null || value.trim().isEmpty) {
             return 'Field required!';
           }
 
           return null;
         },
-        hint: Text("Chosse Class"),
+        hint: Text(widget.hint != null ? widget.hint : "Chosse Class"),
         style: text15w500(black),
         dropdownColor: white,
         decoration: InputDecoration(
             filled: true, fillColor: white, border: InputBorder.none),
         isExpanded: true,
+        // value: widget.fieldKey.currentState?.value.toString() ?? "",
         items: widget.list.map((e) {
           return DropdownMenuItem(
               value: e.toString(), child: Text(e.toString()));

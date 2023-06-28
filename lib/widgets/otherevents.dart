@@ -1,16 +1,18 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_week/flutter_calendar_week.dart';
-import 'package:little_leagues/screens/payment/paymentpage.dart';
+import 'package:little_leagues/screens/shop/yourcart.dart';
 import 'package:little_leagues/services/database_service.dart';
 import 'package:little_leagues/utils/constants.dart';
 import 'package:intl/intl.dart';
+import 'package:little_leagues/widgets/showsnackbar.dart';
 
 class OtherEvents extends StatefulWidget {
-  final String? id;
+  final String id;
   final String institution;
-  const OtherEvents({super.key, this.id, required this.institution});
+  const OtherEvents({super.key, required this.id, required this.institution});
 
   @override
   State<OtherEvents> createState() => _OtherEventsState();
@@ -174,20 +176,18 @@ class _OtherEventsState extends State<OtherEvents>
                                           child: Container(
                                             width: 75,
                                             height: 75,
-                                            child: Image.network(
-                                              snapshot.data.docs[index]
-                                                  ['class_image'],
-                                              fit: BoxFit.fill,
-                                              errorBuilder:
+                                            child: CachedNetworkImage(
+                                              fit: BoxFit.cover,
+                                              progressIndicatorBuilder:
                                                   (context, error, stackTrace) {
                                                 return Container(
-                                                  color: white.withOpacity(.6),
-                                                  child: Center(
-                                                    child: Icon(Icons
-                                                        .image_search_rounded),
-                                                  ),
+                                                  color: backgroundColor,
                                                 );
                                               },
+                                              imageUrl: snapshot.data
+                                                  .docs[index]['class_image'],
+                                              height: 60,
+                                              width: 60,
                                             ),
                                           ),
                                         ),
@@ -243,6 +243,8 @@ class _OtherEventsState extends State<OtherEvents>
                                             Container(
                                               height: 20,
                                               child: ListView.separated(
+                                                  physics:
+                                                      NeverScrollableScrollPhysics(),
                                                   scrollDirection:
                                                       Axis.horizontal,
                                                   itemBuilder: (context, i) {
@@ -272,35 +274,74 @@ class _OtherEventsState extends State<OtherEvents>
                                                       .docs[index]['class_days']
                                                       .length),
                                             ),
+                                            // InkWell(
+                                            //   onTap: () {
+                                            //     NextScreen(
+                                            //         context,
+                                            //         PaymentPage(
+                                            //           userId: widget.id,
+                                            //           totalPrice: snapshot.data
+                                            //               .docs[index]['price'],
+                                            //           productList: [
+                                            //             {
+                                            //               'item': "class",
+                                            //               "id": snapshot.data
+                                            //                       .docs[index]
+                                            //                   ['class_id']
+                                            //             }
+                                            //           ],
+                                            //         ));
+                                            //   },
+                                            //   child: Container(
+                                            //     margin:
+                                            //         EdgeInsets.only(top: 12),
+                                            //     padding: EdgeInsets.symmetric(
+                                            //         horizontal: 12,
+                                            //         vertical: 7),
+                                            //     decoration: BoxDecoration(
+                                            //         borderRadius:
+                                            //             BorderRadius.circular(
+                                            //                 5),
+                                            //         color: primaryColor),
+                                            //     child: Text(
+                                            //       "Join Now",
+                                            //       style: text14w700(black),
+                                            //     ),
+                                            //   ),
+                                            // ),
+                                            // horizontalSpace(7),
                                             InkWell(
                                               onTap: () {
-                                                // NextScreen(
-                                                //     context,
-                                                //     PaymentPage(
-                                                //         sportName: snapshot.data
-                                                //                 .docs[index]
-                                                //             ['class_name'],
-                                                //         sportId: snapshot.data
-                                                //                 .docs[index]
-                                                //             ['class_id']));
-
                                                 DatabaseService(uid: widget.id)
-                                                    .joinClass(snapshot
-                                                        .data.docs[index].id);
+                                                    .addClassToCart(snapshot
+                                                            .data.docs[index]
+                                                        ['class_id']);
+                                                openSnackbar(
+                                                  context,
+                                                  "Your class has been added to cart",
+                                                  primaryColor,
+                                                  label: "View",
+                                                  onTap: () {
+                                                    NextScreen(
+                                                        context,
+                                                        YourCart(
+                                                          id: widget.id,
+                                                        ));
+                                                  },
+                                                );
                                               },
                                               child: Container(
                                                 margin:
                                                     EdgeInsets.only(top: 12),
                                                 padding: EdgeInsets.symmetric(
-                                                    horizontal: 12,
-                                                    vertical: 7),
+                                                    horizontal: 7, vertical: 7),
                                                 decoration: BoxDecoration(
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             5),
                                                     color: primaryColor),
                                                 child: Text(
-                                                  "Join Now",
+                                                  "Add to Cart",
                                                   style: text14w700(black),
                                                 ),
                                               ),
@@ -313,7 +354,11 @@ class _OtherEventsState extends State<OtherEvents>
                               : horizontalSpace(0);
                     },
                   )
-                : CircularProgressIndicator();
+                : Center(
+                    child: CircularProgressIndicator(
+                      color: primaryColor,
+                    ),
+                  );
           },
         )
       ]),

@@ -1,16 +1,11 @@
 import 'dart:async';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:little_leagues/helper/helper_function.dart';
 import 'package:little_leagues/services/auth_service.dart';
 import 'package:little_leagues/services/database_service.dart';
-
 import 'package:little_leagues/utils/constants.dart';
-import 'package:little_leagues/widgets/showsnackbar.dart';
 import 'package:pinput/pinput.dart';
-
-import '../bottomnav.dart';
 
 class PhoneAuthScreen extends StatefulWidget {
   const PhoneAuthScreen({super.key});
@@ -20,7 +15,6 @@ class PhoneAuthScreen extends StatefulWidget {
 }
 
 class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
-  final user = FirebaseAuth.instance.currentUser;
   TextEditingController phoneController = TextEditingController();
   int start = 30;
   bool wait = false;
@@ -85,8 +79,8 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       border: InputBorder.none,
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 27, vertical: 22),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 27, vertical: 22),
                       hintText: "Phone Number",
                       filled: true,
                       hintStyle: text16w600(Colors.grey.shade500),
@@ -113,7 +107,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                                   buttonName = "Resend";
                                 });
                                 await AuthService().verifyPhoneNumber(
-                                    "+91${phoneController.text}",
+                                    phoneController.text.toString(),
                                     context,
                                     setData);
                               },
@@ -176,13 +170,13 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                 ElevatedButton(
                     onPressed: () {
                       AuthService()
-                          .signInwithPhoneNumber(
+                          .signInwithPhoneNumber(phoneController.text,
                               verificationIdFinal, smsCode, context)
                           .then((value) async {
                         if (value == true) {
-                          await HelperFunctions.saveUserLoggedInStatus(true);
-
                           final user = await FirebaseAuth.instance.currentUser;
+
+                          await HelperFunctions.saveUserLoggedInStatus(true);
                           await DatabaseService(uid: user!.uid)
                               .getUserDataField(context, num: 3);
                         }

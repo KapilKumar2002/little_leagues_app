@@ -1,13 +1,9 @@
 import 'dart:async';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:little_leagues/helper/helper_function.dart';
-import 'package:little_leagues/screens/Dashboard.dart';
-import 'package:little_leagues/screens/adminsite/adminchatroom.dart';
-import 'package:little_leagues/screens/auth/signin.dart';
-import 'package:little_leagues/screens/bottomnav.dart';
 import 'package:little_leagues/screens/start/onboard.dart';
+import 'package:little_leagues/services/database_service.dart';
 import 'package:little_leagues/utils/constants.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -19,8 +15,9 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   bool _isSignedIn = false;
+  final user = FirebaseAuth.instance.currentUser;
 
-  getUserLoggedInStatus() async {
+  getMainScreen() async {
     await HelperFunctions.getUserLoggedInStatus().then((value) {
       if (value != null) {
         setState(() {
@@ -28,58 +25,46 @@ class _SplashScreenState extends State<SplashScreen> {
         });
       }
     });
+    Timer(const Duration(seconds: 2), () async {
+      _isSignedIn
+          ? await DatabaseService(uid: user!.uid).getUserDataField(context,
+              num: user!.phoneNumber != null ? 3 : null)
+          : nextScreenReplace(context, const OnBoardScreen());
+    });
   }
 
-  // @override
-  // void initState() {
-  //   // TODO: implement initState
-  //   // getUserLoggedInStatus();
-  //   super.initState();
-  //   Timer(Duration(seconds: 2), () {
-  //     NextScreen(context, AdminChatRoom());
-  //   });
-  // }
-
-  final user = FirebaseAuth.instance.currentUser;
   @override
   void initState() {
-    // TODO: implement initState
-    getUserLoggedInStatus();
+    getMainScreen();
     super.initState();
-    Timer(Duration(seconds: 2), () {
-      nextScreenReplace(
-          context, _isSignedIn ? BottomNav(id: user!.uid) : OnBoardScreen());
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: black,
-      body: Container(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-                margin: EdgeInsets.only(top: 169),
-                padding: EdgeInsets.symmetric(horizontal: 79),
-                child: Image.asset("assets/logo.png")),
-            Container(
-              margin: EdgeInsets.only(bottom: 115),
-              child: Text(
-                "SPORTS AT\nYOUR\nDOORSTEP",
-                style: TextStyle(
-                    fontSize: 36,
-                    fontWeight: FontWeight.w900,
-                    color: primaryColor,
-                    letterSpacing: 3,
-                    height: 1.2,
-                    fontStyle: FontStyle.italic),
-                textAlign: TextAlign.center,
-              ),
-            )
-          ],
-        ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+              margin: const EdgeInsets.only(top: 169),
+              padding: const EdgeInsets.symmetric(horizontal: 79),
+              child: Image.asset("assets/logo.png")),
+          Container(
+            margin: const EdgeInsets.only(bottom: 115),
+            child: Text(
+              "SPORTS AT\nYOUR\nDOORSTEP",
+              style: TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.w900,
+                  color: primaryColor,
+                  letterSpacing: 3,
+                  height: 1.2,
+                  fontStyle: FontStyle.italic),
+              textAlign: TextAlign.center,
+            ),
+          )
+        ],
       ),
     );
   }

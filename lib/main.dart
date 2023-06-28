@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:little_leagues/screens/payment/paymentsuccess.dart';
 import 'package:little_leagues/screens/start/splashscreen.dart';
 
 void main() async {
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(primarySwatch: Colors.grey),
-      home: SplashScreen(),
+      home: const SplashScreen(),
     );
   }
 }

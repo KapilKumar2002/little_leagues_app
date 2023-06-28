@@ -136,7 +136,7 @@ class _ItemResultScreenState extends State<ItemResultScreen> {
                             "TABLE TENNIS TABLES",
                             style: text16w600(black),
                           ),
-                          Icon(
+                          const Icon(
                             Icons.arrow_forward_ios_rounded,
                             color: Colors.grey,
                             size: 18,
@@ -144,13 +144,13 @@ class _ItemResultScreenState extends State<ItemResultScreen> {
                         ]),
                   ),
                 ),
-                Divider(),
+                const Divider(),
                 InkWell(
                   onTap: () {
-                    NextScreen(context, ResultScreen());
+                    NextScreen(context, const ResultScreen());
                   },
                   child: Container(
-                    margin: EdgeInsets.symmetric(vertical: 10),
+                    margin: const EdgeInsets.symmetric(vertical: 10),
                     child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -158,7 +158,7 @@ class _ItemResultScreenState extends State<ItemResultScreen> {
                             "TABLE TENNIS TABLES",
                             style: text16w600(black),
                           ),
-                          Icon(
+                          const Icon(
                             Icons.arrow_forward_ios_rounded,
                             color: Colors.grey,
                             size: 18,
@@ -166,13 +166,13 @@ class _ItemResultScreenState extends State<ItemResultScreen> {
                         ]),
                   ),
                 ),
-                Divider(),
+                const Divider(),
                 InkWell(
                   onTap: () {
                     NextScreen(context, ResultScreen());
                   },
                   child: Container(
-                    margin: EdgeInsets.symmetric(vertical: 10),
+                    margin: const EdgeInsets.symmetric(vertical: 10),
                     child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -180,7 +180,7 @@ class _ItemResultScreenState extends State<ItemResultScreen> {
                             "TABLE TENNIS TABLES",
                             style: text16w600(black),
                           ),
-                          Icon(
+                          const Icon(
                             Icons.arrow_forward_ios_rounded,
                             color: Colors.grey,
                             size: 18,
@@ -188,13 +188,13 @@ class _ItemResultScreenState extends State<ItemResultScreen> {
                         ]),
                   ),
                 ),
-                Divider(),
+                const Divider(),
                 InkWell(
                   onTap: () {
-                    NextScreen(context, ResultScreen());
+                    NextScreen(context, const ResultScreen());
                   },
                   child: Container(
-                    margin: EdgeInsets.symmetric(vertical: 10),
+                    margin: const EdgeInsets.symmetric(vertical: 10),
                     child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -202,7 +202,7 @@ class _ItemResultScreenState extends State<ItemResultScreen> {
                             "TABLE TENNIS TABLES",
                             style: text16w600(black),
                           ),
-                          Icon(
+                          const Icon(
                             Icons.arrow_forward_ios_rounded,
                             color: Colors.grey,
                             size: 18,
@@ -210,13 +210,13 @@ class _ItemResultScreenState extends State<ItemResultScreen> {
                         ]),
                   ),
                 ),
-                Divider(),
+                const Divider(),
                 InkWell(
                   onTap: () {
-                    NextScreen(context, ResultScreen());
+                    NextScreen(context, const ResultScreen());
                   },
                   child: Container(
-                    margin: EdgeInsets.symmetric(vertical: 10),
+                    margin: const EdgeInsets.symmetric(vertical: 10),
                     child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -224,7 +224,7 @@ class _ItemResultScreenState extends State<ItemResultScreen> {
                             "TABLE TENNIS TABLES",
                             style: text16w600(black),
                           ),
-                          Icon(
+                          const Icon(
                             Icons.arrow_forward_ios_rounded,
                             color: Colors.grey,
                             size: 18,
@@ -232,7 +232,7 @@ class _ItemResultScreenState extends State<ItemResultScreen> {
                         ]),
                   ),
                 ),
-                Divider()
+                const Divider()
               ],
             ),
           )

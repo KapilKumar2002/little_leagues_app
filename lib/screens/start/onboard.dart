@@ -1,6 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:little_leagues/screens/auth/signin.dart';
-import 'package:little_leagues/screens/auth/signup.dart';
 import 'package:little_leagues/utils/constants.dart';
 
 class OnBoardScreen extends StatefulWidget {
@@ -16,82 +16,60 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
     return Scaffold(
       backgroundColor: black,
       body: SingleChildScrollView(
-        child: Container(
-          child: Column(
-            children: [
-              Container(
-                margin: EdgeInsets.only(top: 50, bottom: 20),
-                child: Image.asset(
-                  "assets/logo.png",
-                  height: 46,
-                  width: 69,
-                  fit: BoxFit.fill,
-                ),
+        child: Column(
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 50, bottom: 20),
+              child: Image.asset(
+                "assets/logo.png",
+                height: 46,
+                width: 69,
+                fit: BoxFit.fill,
               ),
-              Container(
-                  decoration: BoxDecoration(boxShadow: [
-                    BoxShadow(
-                        blurStyle: BlurStyle.inner,
-                        spreadRadius: 20,
-                        blurRadius: 20,
-                        color: black)
-                  ]),
-                  height: height(context) * .5,
-                  width: width(context),
-                  child: Image.network(
-                    "https://firebasestorage.googleapis.com/v0/b/littleleagues.appspot.com/o/onboard.png?alt=media&token=9a2c19b4-46b0-4721-a840-048b2ccd2252",
-                    fit: BoxFit.fill,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: white.withOpacity(.6),
-                        child: Center(
-                          child: Icon(Icons.image_search_rounded),
-                        ),
-                      );
-                    },
-                  )),
-              SizedBox(
-                height: 20,
+            ),
+            Container(
+              height: height(context) * .5,
+              width: width(context),
+              child: Image.asset(
+                "assets/home.jpeg",
+                fit: BoxFit.fill,
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Text(
-                  'With “Little Leagues”, now every residential complex can boast of having a mini sports academy with facilities otherwise available only at specialized sports academies, helping their children get qualified training from the safety of their homes.',
+            ),
+            verticalSpace(20),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                'With “Little Leagues”, now every residential complex can boast of having a mini sports academy with facilities otherwise available only at specialized sports academies, helping their children get qualified training from the safety of their homes.',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    letterSpacing: 1.2,
+                    fontWeight: FontWeight.w300,
+                    height: 1.25),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            verticalSpace(20),
+            ElevatedButton(
+                onPressed: () {
+                  nextScreenReplace(context, const SignIn());
+                },
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(0)),
+                    minimumSize:
+                        Size(MediaQuery.of(context).size.width * .75, 68)),
+                child: const Text(
+                  "ARE YOU INTERESTED?",
                   style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      letterSpacing: 1.2,
-                      fontWeight: FontWeight.w300,
-                      height: 1.25),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              SizedBox(
-                height: 50,
-              ),
-              ElevatedButton(
-                  onPressed: () {
-                    nextScreenReplace(context, SignIn());
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(0)),
-                      minimumSize:
-                          Size(MediaQuery.of(context).size.width * .75, 68)),
-                  child: Text(
-                    "ARE YOU INTERESTED?",
-                    style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 2,
-                        color: Colors.black),
-                  )),
-              SizedBox(
-                height: 72,
-              ),
-            ],
-          ),
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 2,
+                      color: Colors.black),
+                )),
+            verticalSpace(72)
+          ],
         ),
       ),
     );

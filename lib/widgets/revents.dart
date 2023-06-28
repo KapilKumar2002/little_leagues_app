@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -171,20 +172,18 @@ class _RegisteredEventsState extends State<RegisteredEvents> {
                                           child: Container(
                                             width: 75,
                                             height: 75,
-                                            child: Image.network(
-                                              snapshot.data.docs[index]
-                                                  ['class_image'],
-                                              fit: BoxFit.fill,
-                                              errorBuilder:
+                                            child: CachedNetworkImage(
+                                              fit: BoxFit.cover,
+                                              progressIndicatorBuilder:
                                                   (context, error, stackTrace) {
                                                 return Container(
-                                                  color: white.withOpacity(.6),
-                                                  child: Center(
-                                                    child: Icon(Icons
-                                                        .image_search_rounded),
-                                                  ),
+                                                  color: backgroundColor,
                                                 );
                                               },
+                                              imageUrl: snapshot.data
+                                                  .docs[index]['class_image'],
+                                              height: 60,
+                                              width: 60,
                                             ),
                                           ),
                                         ),
@@ -242,9 +241,8 @@ class _RegisteredEventsState extends State<RegisteredEvents> {
                     },
                   )
                 : Center(
-                    child: Text(
-                      "data",
-                      style: text15w400(white2),
+                    child: CircularProgressIndicator(
+                      color: primaryColor,
                     ),
                   );
           },

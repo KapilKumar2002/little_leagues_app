@@ -1,16 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-Color primaryColor = Color(0xFFDDFE52);
+Color primaryColor = const Color(0xFFDDFE52);
 Color transparentColor = Colors.transparent;
-Color backgroundColor = Color(0xFF1A1919);
-Color nColor = Color(0xFF313030);
+Color backgroundColor = const Color(0xFF1A1919);
+Color nColor = const Color(0xFF313030);
 Color bottomBarColor = black.withOpacity(.8);
-Color fillColor = Color(0xFFE1E1E1);
+Color fillColor = const Color(0xFFE1E1E1);
 Color white = Colors.white.withOpacity(.83);
 Color white2 = Colors.white;
-Color black = Color(0XFF000000);
+Color tabColor = const Color(0xFFBCBCBC);
+Color black = const Color(0XFF000000);
 Color grey = black.withOpacity(.5);
+String profileIcon =
+    "https://firebasestorage.googleapis.com/v0/b/littleleagues.appspot.com/o/appIcons%2FprofileIcon.png?alt=media&token=46f7cd4d-af66-42e3-a03a-ea0c54c98d7c";
 
 String adminUID = "1rM4qLcVEhCARipS0Ivfa3d4Wt0=debraj_nasker";
 
@@ -161,17 +164,21 @@ height(BuildContext context) {
   return MediaQuery.of(context).size.height;
 }
 
-void NextScreen(context, page) {
+void NextScreen(BuildContext context, page) {
   Navigator.push(context, MaterialPageRoute(builder: (context) => page));
 }
 
-void popBack(context) {
+void popBack(BuildContext context) {
   Navigator.pop(context);
 }
 
-void nextScreenReplace(context, page) {
+void nextScreenReplace(BuildContext context, page) {
   Navigator.pushReplacement(
-      context, MaterialPageRoute(builder: (context) => page));
+    context,
+    MaterialPageRoute(
+      builder: (context) => page,
+    ),
+  );
 }
 
 @override

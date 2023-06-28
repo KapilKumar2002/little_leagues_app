@@ -23,54 +23,31 @@ class _BottomNavState extends State<BottomNav> {
   int index = 0;
   String institution = "";
   final GlobalKey<ScaffoldState> globalKey = GlobalKey();
-  // final user = FirebaseAuth.instance.currentUser;
 
   String groupId = "";
   String fullName = "";
+  String profilePic = "";
 
-  // giveId() async {
-  //   // print(user!.uid);
-  //   if (user != null) {
-  //     final userCollection = await FirebaseFirestore.instance
-  //         .collection("users")
-  //         .doc(user!.uid)
-  //         .get();
-  //     final data = userCollection.data() as Map<String, dynamic>;
-
-  //     setState(() {
-  //       fullName = data['fullName'];
-  //     });
-
-  //     setState(() {
-  //       groupId = data['groupId'];
-  //     });
-
-  //     // print(groupId);
-  //   }
-  // }
   giveId() async {
-    // print(user!.uid);
     if (widget.id != null) {
       final userCollection = await FirebaseFirestore.instance
           .collection("users")
           .doc(widget.id)
           .get();
       final data = userCollection.data() as Map<String, dynamic>;
-      print(data);
 
       fullName = data['fullName'];
 
       groupId = data['groupId'];
       institution = data['institution'];
-      setState(() {});
+      profilePic = data['profilePic'];
 
-      // print(groupId);
+      setState(() {});
     }
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     setState(() {
       index = widget.ind ?? 0;
     });
@@ -82,8 +59,8 @@ class _BottomNavState extends State<BottomNav> {
   @override
   Widget build(BuildContext context) {
     List bodyWidgets = [
-      DashboardPage(fullName, widget.id.toString()),
-      ShopPage(),
+      DashboardPage(fullName, widget.id.toString(), profilePic),
+      const ShopPage(),
       CalendarPage(
         id: widget.id.toString(),
         institution: institution,
@@ -94,11 +71,12 @@ class _BottomNavState extends State<BottomNav> {
           groupName:
               FirebaseAuth.instance.currentUser!.uid.toString() + fullName,
           userName: fullName),
-      ReportsPage()
+      const ReportsPage()
     ];
     return Scaffold(
       drawer: CustomDrawer(
-        id: widget.id,
+        id: widget.id.toString(),
+        image: profilePic,
       ),
       key: globalKey,
       appBar: AppBar(
@@ -123,7 +101,9 @@ class _BottomNavState extends State<BottomNav> {
             padding: const EdgeInsets.only(right: 20),
             child: InkWell(
               onTap: () {
-                index == 0 ? NextScreen(context, NotificationPage()) : null;
+                index == 0
+                    ? NextScreen(context, const NotificationPage())
+                    : null;
               },
               child: Image.asset(
                 index == 0 ? "assets/bell.png" : "assets/search.png",
@@ -149,6 +129,7 @@ class _BottomNavState extends State<BottomNav> {
       body: bodyWidgets[index],
       bottomNavigationBar: BottomAppBar(
         child: Container(
+          margin: EdgeInsets.zero,
           height: 70,
           child: Row(
             children: [
@@ -174,8 +155,8 @@ class _BottomNavState extends State<BottomNav> {
                         verticalSpace(2),
                         Text(
                           "Home",
-                          style: text10w500(
-                              index == 0 ? primaryColor : Color(0xFFBCBCBC)),
+                          style:
+                              text10w500(index == 0 ? primaryColor : tabColor),
                         )
                       ],
                     ),
@@ -204,8 +185,8 @@ class _BottomNavState extends State<BottomNav> {
                         verticalSpace(2),
                         Text(
                           "Shop",
-                          style: text10w500(
-                              index == 1 ? primaryColor : Color(0xFFBCBCBC)),
+                          style:
+                              text10w500(index == 1 ? primaryColor : tabColor),
                         )
                       ],
                     ),
@@ -234,8 +215,8 @@ class _BottomNavState extends State<BottomNav> {
                         verticalSpace(2),
                         Text(
                           "Calendar",
-                          style: text10w500(
-                              index == 2 ? primaryColor : Color(0xFFBCBCBC)),
+                          style:
+                              text10w500(index == 2 ? primaryColor : tabColor),
                         )
                       ],
                     ),
@@ -264,8 +245,8 @@ class _BottomNavState extends State<BottomNav> {
                         verticalSpace(2),
                         Text(
                           "Messages",
-                          style: text10w500(
-                              index == 3 ? primaryColor : Color(0xFFBCBCBC)),
+                          style:
+                              text10w500(index == 3 ? primaryColor : tabColor),
                         )
                       ],
                     ),
@@ -295,7 +276,7 @@ class _BottomNavState extends State<BottomNav> {
                         Text(
                           "Reports",
                           style: text10w500(
-                            index == 4 ? primaryColor : Color(0xFFBCBCBC),
+                            index == 4 ? primaryColor : tabColor,
                           ),
                         )
                       ],

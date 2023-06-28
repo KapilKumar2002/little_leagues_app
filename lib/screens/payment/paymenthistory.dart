@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:little_leagues/utils/constants.dart';
 import 'package:intl/intl.dart';
@@ -22,6 +21,7 @@ class _PaymentHistoryState extends State<PaymentHistory> {
         .collection("users")
         .doc(widget.id)
         .collection("payment_history")
+        .orderBy("time", descending: true)
         .snapshots();
     setState(() {});
   }
@@ -38,6 +38,7 @@ class _PaymentHistoryState extends State<PaymentHistory> {
     return Scaffold(
         backgroundColor: black,
         appBar: AppBar(
+          centerTitle: true,
           titleSpacing: -10,
           leading: IconButton(
               onPressed: () {
@@ -78,7 +79,7 @@ class _PaymentHistoryState extends State<PaymentHistory> {
                       itemCount: snapshot.data.docs.length,
                       shrinkWrap: true,
                       itemBuilder: (context, index) {
-                        index = snapshot.data.docs.length - index - 1;
+                        // index = snapshot.data.docs.length - index - 1;
                         return Column(
                           children: [
                             Container(

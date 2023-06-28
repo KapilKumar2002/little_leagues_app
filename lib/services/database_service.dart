@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:little_leagues/helper/helper_function.dart';
 import 'package:little_leagues/screens/bottomnav.dart';
 import 'package:little_leagues/screens/infoscreen.dart';
 import 'package:little_leagues/utils/constants.dart';
 import 'package:little_leagues/widgets/showsnackbar.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+// import 'package:syncfusion_flutter_charts/charts.dart';
 
 class DatabaseService {
   final String? uid;
@@ -22,7 +23,8 @@ class DatabaseService {
       FirebaseFirestore.instance.collection("classes");
 
   // saving the userdata
-  Future savingUserData(String fullName, String email, String phone) async {
+  Future savingUserData(
+      String fullName, String email, String phone, String profilePic) async {
     return await userCollection.doc(uid).set({
       "fullName": fullName,
       "address": "",
@@ -34,9 +36,9 @@ class DatabaseService {
       "lastSignout": "",
       "email": email,
       "phone": "${phone}",
-      "profilePic": "",
+      "profilePic": profilePic,
       "groupId": "",
-      "uid": "",
+      "uid": uid,
       "country": "",
       "parentName": "",
       "alternatePhone": ""
@@ -72,17 +74,17 @@ class DatabaseService {
       "groupId": groupDocumentReference.id,
     });
 
-    DocumentReference adminDocumentReference = userCollection.doc(adminUID);
-    await adminDocumentReference.update({
-      "groups":
-          FieldValue.arrayUnion(["${groupDocumentReference.id}_$userName"])
-    });
+    // DocumentReference adminDocumentReference = userCollection.doc(adminUID);
+    // await adminDocumentReference.update({
+    //   "groups":
+    //       FieldValue.arrayUnion(["${groupDocumentReference.id}_$userName"])
+    // });
 
     DocumentReference userDocumentReference = userCollection.doc(uid);
     return await userDocumentReference.update({
-      "groups": FieldValue.arrayUnion(
-        ["${groupDocumentReference.id}_$userName"],
-      ),
+      // "groups": FieldValue.arrayUnion(
+      //   ["${groupDocumentReference.id}_$userName"],
+      // ),
       "groupId": groupDocumentReference.id,
     });
   }
@@ -178,38 +180,37 @@ class DatabaseService {
   // }
 
   getUserDataField(BuildContext context, {int? num}) async {
+    final user = FirebaseAuth.instance.currentUser;
     try {
       final userData = await userCollection.doc(uid).get();
       final userDetails = userData.data();
       if (userDetails == null) {
-        NextScreen(
+        nextScreenReplace(
             context,
             InfoScreen(
+              id: user!.uid,
               phone: num,
             ));
       }
-      {
-        final user = FirebaseAuth.instance.currentUser;
-        final data = userDetails as Map<String, dynamic>;
-        if (data['fullName'] == "" ||
-            data['email'] == "" ||
-            data['phone'] == "" ||
-            data['DOB'] == "" ||
-            data['address'] == "") {
-          NextScreen(
-              context,
-              InfoScreen(
-                id: user!.uid,
-                phone: num,
-              ));
-        } else {
-          NextScreen(
-              context,
-              BottomNav(
-                id: user!.uid,
-              ));
-          openSnackbar(context, "Logged In", primaryColor);
-        }
+
+      final data = userDetails as Map<String, dynamic>;
+      if (data['fullName'] == "" ||
+          data['email'] == "" ||
+          data['phone'] == "" ||
+          data['DOB'] == "" ||
+          data['address'] == "") {
+        nextScreenReplace(
+            context,
+            InfoScreen(
+              id: user!.uid,
+              phone: num,
+            ));
+      } else {
+        nextScreenReplace(
+            context,
+            BottomNav(
+              id: user!.uid,
+            ));
       }
     } catch (e) {
       openSnackbar(context, e.toString(), primaryColor);
@@ -262,31 +263,6 @@ class DatabaseService {
       "isSelected": true
     });
     // "previous price": dataMap['previous price'],
-  }
-
-  joinClass(String sid) async {
-    final event = await FirebaseFirestore.instance
-        .collection("sport_classes")
-        .doc(sid)
-        .get();
-    final data = event.data() as Map<String, dynamic>;
-
-    await FirebaseFirestore.instance
-        .collection("users")
-        .doc(uid)
-        .collection("enrolled_classes")
-        .doc(sid)
-        .set({
-      "class_days": data['class_days'],
-      "class_desc": data['class_desc'],
-      "class_id": data['class_id'],
-      "class_image": data['class_image'],
-      "class_name": data['class_name'],
-      "end_time": data['end_time'],
-      "start_time": data['start_time'],
-      "start_date": DateTime.now(),
-      "next_pay_date": DateTime.now().add(Duration(days: 30))
-    });
   }
 
   getRegClasses() async {

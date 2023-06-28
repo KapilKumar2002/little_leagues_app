@@ -42,7 +42,7 @@ class _CalendarPageState extends State<CalendarPage>
               ),
               OtherEvents(
                 institution: widget.institution.toString(),
-                id: widget.id,
+                id: widget.id.toString(),
               )
             ])),
           ],

@@ -12,7 +12,7 @@ package="com.example.little_leagues"
 
 
    <application
-        android:label="little_leagues"
+        android:label="LLL"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

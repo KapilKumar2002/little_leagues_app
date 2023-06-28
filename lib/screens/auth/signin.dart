@@ -38,17 +38,12 @@ class _SignInState extends State<SignIn> {
               emailController.text, passController.text)
           .then((value) async {
         if (value == true) {
-          QuerySnapshot snapshot =
-              await DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
-                  .gettingUserData(emailController.text);
-          // saving the values to our shared preferences
           await HelperFunctions.saveUserLoggedInStatus(true);
           await HelperFunctions.saveUserEmailSF(emailController.text);
-          await HelperFunctions.saveUserNameSF(snapshot.docs[0]['fullName']);
           nextScreenReplace(
               context,
               BottomNav(
-                id: user!.uid,
+                id: FirebaseAuth.instance.currentUser!.uid,
               ));
         } else {
           openSnackbar(
@@ -96,7 +91,7 @@ class _SignInState extends State<SignIn> {
                           style: text20w500(white),
                         ),
                       ),
-                      verticalSpace(30),
+                      verticalSpace(20),
                       Form(
                           key: formKey,
                           child: Column(
@@ -224,7 +219,6 @@ class _SignInState extends State<SignIn> {
                                   )),
                             ],
                           )),
-                      verticalSpace(10),
                       InkWell(
                         onTap: () {
                           Navigator.push(
@@ -232,21 +226,25 @@ class _SignInState extends State<SignIn> {
                               MaterialPageRoute(
                                   builder: (context) => SignUp()));
                         },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Don't have an account? ",
-                              style: text12w600(white),
-                            ),
-                            Text(
-                              "Sign up",
-                              style: text12w600(primaryColor),
-                            ),
-                          ],
+                        child: TextButton(
+                          onPressed: () {
+                            NextScreen(context, SignUp());
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Don't have an account? ",
+                                style: text12w600(white),
+                              ),
+                              Text(
+                                "Sign up",
+                                style: text12w600(primaryColor),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      verticalSpace(23),
                       ElevatedButton(
                           onPressed: () {
                             NextScreen(context, PhoneAuthScreen());

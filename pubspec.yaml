@@ -38,10 +38,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   firebase_core: ^2.8.0
   cloud_firestore: ^4.4.5
-  percent_indicator: ^4.2.3
-  flutter_screenutil: ^5.7.0
   pinput: ^2.2.21
-  syncfusion_flutter_charts: ^21.1.39
   carousel_slider: ^4.2.1
   carousel_indicator: ^1.0.6
   firebase_auth: ^4.2.2
@@ -49,7 +46,6 @@ dependencies:
   flutter_facebook_auth: ^5.0.8
   shared_preferences: ^2.1.0
   flutter_calendar_week: ^3.0.0
-  flutter_pw_validator: ^1.5.0
   form_field_validator: ^1.1.0
   email_otp: ^2.0.1
   image_picker: ^0.8.7+4
@@ -57,9 +53,12 @@ dependencies:
   firebase_storage: ^11.1.2
   flutter_number_picker: ^1.0.4
   csc_picker: ^0.2.7
-  upi_india: ^3.0.1
   connectivity_plus: ^2.1.0
   cached_network_image: ^3.2.3
+  http: ^0.13.5
+  flutter_launcher_icons: ^0.11.0
+  instamojo: ^1.0.0+2
+
 
  
   
@@ -75,6 +74,11 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+
+flutter_icons:
+  android: true
+  image_path: "assets/icon.png"
+  
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
